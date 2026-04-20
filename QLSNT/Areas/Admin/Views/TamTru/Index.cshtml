@@ -1,74 +1,183 @@
-﻿@model IEnumerable<QLSNT.Models.TamTru>
+﻿@using QLSNT.Models
+@model IEnumerable<QLSNT.Models.TamTru>
 
 @{
     ViewData["Title"] = "Quản lý Tạm trú";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h1 class="mb-3">Danh sách Tạm trú</h1>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-<div class="row mb-3">
-    <div class="col-md-8">
-        <form method="get" class="d-flex">
-            <input type="text"
-                   name="keyword"
-                   value="@ViewBag.Keyword"
-                   class="form-control me-2"
-                   placeholder="Tìm theo CCCD, mã xã, địa chỉ, lý do..." />
-            <button class="btn btn-primary">Tìm kiếm</button>
-        </form>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary m-0"><i class="bi bi-house-door-fill me-2"></i>@ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-success shadow-sm px-4"><i class="bi bi-plus-lg"></i> Thêm mới</a>
     </div>
-    <div class="col-md-4 text-end">
-        <a asp-action="Create" class="btn btn-success">
-            + Thêm tạm trú
-        </a>
+
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
+            <form asp-action="Index" method="get" id="filterForm" class="row g-3 align-items-end">
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Tỉnh / Thành phố</label>
+                    <select id="maTinh" name="maTinh" class="form-select shadow-sm">
+                        <option value="">-- Chọn Tỉnh --</option>
+                        @if (ViewBag.TinhList != null)
+                        {
+                            foreach (var tinh in ViewBag.TinhList)
+                            {
+                                <option value="@tinh.MaTinhMoi" selected="@(Context.Request.Query["maTinh"] == tinh.MaTinhMoi.ToString())">
+                                    @tinh.TenTinhMoi
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Xã / Thị trấn</label>
+                    <select id="maXaMoi" name="maXaMoi" class="form-select shadow-sm"
+                    @(string.IsNullOrEmpty(Context.Request.Query["maTinh"]) ? "disabled" : "")>
+                        <option value="">-- Chọn Xã --</option>
+                        @if (ViewBag.XaMoiList != null)
+                        {
+                            foreach (var xa in ViewBag.XaMoiList)
+                            {
+                                <option value="@xa.MaXaMoi" selected="@(Context.Request.Query["maXaMoi"] == xa.MaXaMoi.ToString())">
+                                    @xa.TenXaMoi
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Tìm kiếm</label>
+                    <input type="text" name="keyword" value="@Context.Request.Query["keyword"]" class="form-control shadow-sm" placeholder="Họ tên, CCCD hoặc địa chỉ..." />
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm"><i class="bi bi-funnel"></i> Lọc</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100 shadow-sm"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">Mã</th>
+                            <th>Xã/Thị trấn tạm trú</th>
+                            <th>CCCD</th>
+                            <th>Họ và Tên</th>
+                            <th>Địa chỉ</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted small">@item.MaXaMoi</td>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info px-3 rounded-pill">
+                                        @item.XaMoi?.TenXaMoi
+                                    </span>
+                                </td>
+                                <td><code>@item.MaCCCD</code></td>
+                                <td class="fw-bold">@item.NguoiDan?.HoTen</td>
+                                <td class="text-truncate text-muted" style="max-width:200px">@item.DiaChi</td>
+                                <td class="text-center">
+                                <td class="text-center">
+                                    <div class="btn-group shadow-sm">
+                                            @* Nút Chi tiết *@
+                                        <a asp-action="Details"
+                                           asp-route-maXaMoi="@item.MaXaMoi"
+                                           asp-route-maCCCD="@item.MaCCCD"
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
+                                            @* Nút Chỉnh sửa *@
+                                        <a asp-action="Edit"
+                                           asp-route-maXaMoi="@item.MaXaMoi"
+                                           asp-route-maCCCD="@item.MaCCCD"
+                                           class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+
+                                            @* Nút Xóa *@
+                                        <a asp-action="Delete"
+                                           asp-route-maXaMoi="@item.MaXaMoi"
+                                           asp-route-maCCCD="@item.MaCCCD"
+                                           class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash3"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-@if (Model != null && Model.Any())
-{
-        <table class="table table-bordered table-striped align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Mã xã</th>
-                    <th>CCCD</th>
-                    <th>Địa chỉ tạm trú</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>ThoiHan</th>
-                    <th style="width:220px;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model)
-            {
-                    <tr>
-                        <td>@item.MaXaMoi</td>
-                        <td>@item.MaCCCD</td>
-                        <td>@item.DiaChi</td>
-                        <td>@item.NgayDangKy?.ToString("dd/MM/yyyy")</td>
-                        <td>@item.ThoiHan</td>
-                        <td>
-                            <a asp-action="Details"
-                               asp-route-maXaMoi="@item.MaXaMoi"
-                               asp-route-maCCCD="@item.MaCCCD"
-                               class="btn btn-sm btn-info">Chi tiết</a>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khi thay đổi Tỉnh
+            $('#maTinh').change(function () {
+                var tinhId = $(this).val();
+                var $xaSelect = $('#maXaMoi');
 
-                            <a asp-action="Edit"
-                               asp-route-maXaMoi="@item.MaXaMoi"
-                               asp-route-maCCCD="@item.MaCCCD"
-                               class="btn btn-sm btn-warning">Sửa</a>
+                if (tinhId) {
+                    $xaSelect.prop('disabled', false);
+                    $xaSelect.empty().append('<option value="">-- Đang tải... --</option>');
 
-                            <a asp-action="Delete"
-                               asp-route-maXaMoi="@item.MaXaMoi"
-                               asp-route-maCCCD="@item.MaCCCD"
-                               class="btn btn-sm btn-danger">Xóa</a>
-                        </td>
-                    </tr>
-            }
-            </tbody>
-        </table>
+                    $.ajax({
+                        url: '@Url.Action("GetXaByTinh", "TamTru")',
+                        type: 'GET',
+                        data: { maTinh: tinhId },
+                        success: function (data) {
+                            $xaSelect.empty().append('<option value="">-- Chọn Xã --</option>');
+                            $.each(data, function (i, item) {
+                                $xaSelect.append($('<option>', { value: item.maXaMoi, text : item.tenXaMoi }));
+                            });
+                        }
+                    });
+                } else {
+                    $xaSelect.empty().append('<option value="">-- Chọn Xã --</option>');
+                    $xaSelect.prop('disabled', true);
+                }
+            });
+        });
+    </script>
 }
-else
-{
-        <p><em>Chưa có bản ghi tạm trú nào.</em></p>
-}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .table thead th {
+        border: none;
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.6rem;
+    }
+
+    code {
+        color: #d63384;
+        font-weight: 600;
+    }
+</style>

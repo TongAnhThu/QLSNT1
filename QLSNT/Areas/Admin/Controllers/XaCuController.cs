@@ -148,5 +148,28 @@ namespace QLSNT.Areas.Admin.Controllers
             });
             return Json(result);
         }
+        [HttpGet]
+        public async Task<IActionResult> Autocomplete(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<string>());
+
+            var data = await _repoXa.SearchByNameAsync(term);
+
+            var result = data
+                .Select(x => x.TenXaCu) // sửa theo field tên của bạn
+                .Distinct()
+                .Take(10)
+                .ToList();
+
+            return Json(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Suggest(string keyword)
+        {
+            var data = await _repoXa.SearchByNameAsync(keyword);
+
+            return Json(data.Select(x => x.TenXaCu).Take(10));
+        }
     }
 }

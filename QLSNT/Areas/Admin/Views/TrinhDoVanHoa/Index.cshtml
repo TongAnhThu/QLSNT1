@@ -10,11 +10,16 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <form asp-action="Index" method="get" class="d-flex">
-            <input type="text"
-                   name="search"
-                   value="@ViewBag.Search"
-                   class="form-control me-2"
-                   placeholder="Tìm theo tên trình độ (ví dụ: 12/12, Đại học)..." />
+            <div class="position-relative">
+                <input type="text" id="searchBox" name="search" value="@ViewBag.Search"
+                       class="form-control me-2"
+                       placeholder="Tìm theo tên trình độ (ví dụ: 12/12, Đại học)..." />
+
+                <div id="suggestions"
+                     class="list-group position-absolute w-100"
+                     style="z-index:1000;"></div>
+            </div>
+                  
             <button type="submit" class="btn btn-primary">Tìm kiếm</button>
         </form>
     </div>
@@ -53,3 +58,34 @@
 {
     <p><em>Chưa có dữ liệu trình độ văn hóa.</em></p>
 }
+<script>
+    const input = document.getElementById("searchBox");
+    const box = document.getElementById("suggestions");
+
+    input.addEventListener("input", async function () {
+        const keyword = this.value;
+
+        if (keyword.length < 1) {
+            box.innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/Admin/TrinhDoVanHoa/Autocomplete?term=${keyword}`);
+        const data = await res.json();
+
+        box.innerHTML = "";
+
+        data.forEach(item => {
+            const div = document.createElement("a");
+            div.classList.add("list-group-item", "list-group-item-action");
+            div.textContent = item;
+
+            div.onclick = () => {
+                input.value = item;
+                box.innerHTML = "";
+            };
+
+            box.appendChild(div);
+        });
+    });
+</script>

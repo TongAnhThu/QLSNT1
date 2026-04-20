@@ -6,6 +6,11 @@ namespace QLSNT.ViewModels
 {
     public class NguoiDanCreateViewModel
     {
+        [Required(ErrorMessage = "Vui lòng Nhập họ và tên")]
+        public string HoTen { get; set; }
+        public DateTime? NgaySinh { get; set; }
+        public string GioiTinh { get; set; }
+
         [Required(ErrorMessage = "Vui lòng chọn tỉnh thường trú")]
         public int MaTinhMoi { get; set; }
 

@@ -1,44 +1,157 @@
-﻿@model IEnumerable<QLSNT.Models.ThuongTru>
+﻿@using QLSNT.Models
+@model IEnumerable<QLSNT.Models.ThuongTru>
 
 @{
     ViewData["Title"] = "Danh sách Thường trú";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Thêm mới</a>
-</p>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary m-0"><i class="bi bi-person-vcard-fill me-2"></i>@ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-success shadow-sm px-4"><i class="bi bi-plus-lg"></i> Thêm mới</a>
+    </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Mã xã mới</th>
-            <th>Tên xã</th>
-            <th>Mã CCCD</th>
-            <th>Họ tên</th>
-            <th>Địa chỉ</th>
-            <th>Ngày đăng ký</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.MaXaMoi</td>
-                <td>@item.XaMoi?.TenXaMoi</td>
-                <td>@item.MaCCCD</td>
-                <td>@item.NguoiDan?.HoTen</td>
-                <td>@item.DiaChi</td>
-                <td>@item.NgayDangKy?.ToString("dd/MM/yyyy")</td>
-                <td>
-                    <a asp-action="Details" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD">Chi tiết</a> |
-                    <a asp-action="Edit" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD">Sửa</a> |
-                    <a asp-action="Delete" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD">Xóa</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="card shadow-sm mb-4 border-0">
+        <div class="card-body p-4">
+            <form asp-action="Index" method="get" id="filterForm" class="row g-3 align-items-end">
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Tỉnh / Thành phố</label>
+                    <select id="maTinh" name="maTinh" class="form-select shadow-sm">
+                        <option value="">-- Chọn Tỉnh --</option>
+                        @if (ViewBag.TinhList != null)
+                        {
+                            foreach (var tinh in ViewBag.TinhList)
+                            {
+                                <option value="@tinh.MaTinhMoi" selected="@(Context.Request.Query["maTinh"] == tinh.MaTinhMoi.ToString())">
+                                    @tinh.TenTinhMoi
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Xã / Thị trấn mới</label>
+                    <select id="maXaMoi" name="maXaMoi" class="form-select shadow-sm"
+                    @(string.IsNullOrEmpty(Context.Request.Query["maTinh"]) ? "disabled" : "")>
+                        <option value="">-- Chọn Xã --</option>
+                        @if (ViewBag.XaMoiList != null)
+                        {
+                            foreach (var xa in ViewBag.XaMoiList)
+                            {
+                                <option value="@xa.MaXaMoi" selected="@(Context.Request.Query["maXaMoi"] == xa.MaXaMoi.ToString())">
+                                    @xa.TenXaMoi
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted text-uppercase">Tìm kiếm nhanh</label>
+                    <input type="text" name="keyword" value="@Context.Request.Query["keyword"]" class="form-control shadow-sm" placeholder="Họ tên hoặc CCCD..." />
+                </div>
+
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 shadow-sm"><i class="bi bi-funnel"></i> Lọc</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100 shadow-sm"><i class="bi bi-arrow-clockwise"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-uppercase small fw-bold">
+                        <tr>
+                            <th class="ps-4">Mã xã</th>
+                            <th>Đơn vị xã</th>
+                            <th>Số CCCD</th>
+                            <th>Họ và Tên</th>
+                            <th>Địa chỉ</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted small">@item.MaXaMoi</td>
+                                <td><span class="badge bg-primary bg-opacity-10 text-primary">@item.XaMoi?.TenXaMoi</span></td>
+                                <td><code>@item.MaCCCD</code></td>
+                                <td class="fw-bold">@item.NguoiDan?.HoTen</td>
+                                <td class="text-truncate" style="max-width:200px">@item.DiaChi</td>
+                                <td class="text-center">
+                                    <div class="btn-group shadow-sm">
+                                        <a asp-action="Details" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD" class="btn btn-sm btn-outline-info" title="Xem"><i class="bi bi-eye"></i></a>
+                                        <a asp-action="Edit" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD" class="btn btn-sm btn-outline-warning" title="Sửa"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xóa bản ghi này?')" title="Xóa"><i class="bi bi-trash3"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khi thay đổi Tỉnh
+            $('#maTinh').change(function () {
+                var tinhId = $(this).val();
+                var $xaSelect = $('#maXaMoi');
+
+                if (tinhId) {
+                    $xaSelect.prop('disabled', false); // Mở khóa
+                    $xaSelect.empty().append('<option value="">-- Đang tải... --</option>');
+
+                    $.ajax({
+                        url: '@Url.Action("GetXaByTinh", "ThuongTru")',
+                        type: 'GET',
+                        data: { maTinh: tinhId },
+                        success: function (data) {
+                            $xaSelect.empty().append('<option value="">-- Chọn Xã --</option>');
+                            $.each(data, function (i, item) {
+                                $xaSelect.append($('<option>', { value: item.maXaMoi, text : item.tenXaMoi }));
+                            });
+                        }
+                    });
+                } else {
+                    $xaSelect.empty().append('<option value="">-- Chọn Xã --</option>');
+                    $xaSelect.prop('disabled', true); // Khóa lại
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    body {
+        background-color: #f4f7f6;
+    }
+
+    .table thead th {
+        border: none;
+        font-size: 0.75rem;
+        padding: 15px 10px;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.6rem;
+    }
+
+    .badge {
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+</style>

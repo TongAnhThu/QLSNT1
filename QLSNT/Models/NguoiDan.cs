@@ -7,7 +7,7 @@ namespace QLSNT.Models
     {
         [Key]
         [Required]
-        [StringLength(12)]
+        [StringLength(50)]
         public string MaCCCD { get; set; } = default!;   // PK
         public string HoTen { get; set; } = default!;
         public string? HoTenKhongDau { get; set; }

@@ -1,21 +1,15 @@
 ﻿@model QLSNT.Models.NguoiDan
+
 @{
-    ViewData["Title"] = "Đăng ký người dân - Thông tin cơ bản";
+    ViewData["Title"] = "Đăng ký người dân";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="fw-bold text-primary mb-4">Đăng ký người dân - Bước 1</h2>
+<h2 class="fw-bold text-primary mb-4">Đăng ký người dân</h2>
 
 <div class="card shadow-sm p-4">
     <form asp-action="Create" method="post">
         @Html.AntiForgeryToken()
-
-        <!-- CCCD -->
-        <div class="mb-3">
-            <label asp-for="MaCCCD" class="form-label">Mã Căn Cước Công Dân</label>
-            <input asp-for="MaCCCD" class="form-control" />
-            <span asp-validation-for="MaCCCD" class="text-danger"></span>
-        </div>
 
         <!-- Họ tên -->
         <div class="mb-3">
@@ -40,6 +34,23 @@
                 <option value="Nữ">Nữ</option>
             </select>
             <span asp-validation-for="GioiTinh" class="text-danger"></span>
+        </div>
+
+        <!-- ===== ĐỊA CHỈ THƯỜNG TRÚ ===== -->
+        <hr />
+        <h5 class="fw-bold text-secondary mt-3">Địa chỉ thường trú</h5>
+
+        <select id="tinhDropdown" name="MaTinhMoi" class="form-select" asp-items="ViewBag.TinhList">
+            <option value="">-- Chọn tỉnh --</option>
+        </select>
+
+        <select id="xaDropdown" name="MaXaMoi" class="form-select">
+            <option value="">-- Chọn xã --</option>
+        </select>
+
+        <div class="mb-3">
+            <label class="form-label">Địa chỉ chi tiết</label>
+            <input name="DiaChiThuongTru" class="form-control" />
         </div>
 
         <!-- Dân tộc -->
@@ -82,11 +93,31 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">Tiếp tục</button>
+        <button type="submit" class="btn btn-primary">Tạo người dân</button>
         <a asp-action="Index" asp-controller="NguoiDan" class="btn btn-secondary">Quay lại</a>
     </form>
 </div>
 
 @section Scripts {
+    <script>
+        document.getElementById("tinhDropdown").addEventListener("change", function () {
+            var maTinh = this.value;
+
+            fetch('/Admin/DangKyNguoiDan/GetXaByTinh?maTinh=' + maTinh)
+                .then(res => res.json())
+                .then(data => {
+                    var xaDropdown = document.getElementById("xaDropdown");
+                    xaDropdown.innerHTML = '<option value="">-- Chọn xã --</option>';
+
+                    data.forEach(x => {
+                        var option = document.createElement("option");
+                        option.value = x.id;
+                        option.text = x.name;
+                        xaDropdown.appendChild(option);
+                    });
+                });
+        });
+    </script>
+
     <partial name="_ValidationScriptsPartial" />
 }

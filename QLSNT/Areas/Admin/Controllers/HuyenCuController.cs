@@ -139,6 +139,40 @@ namespace QLSNT.Controllers
 
             return Json(result);   // đây mới là đoạn trả về JSON
         }
+        [HttpGet]
+        public async Task<IActionResult> Autocomplete(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<string>());
+
+            var data = await _repo.SearchByNameAsync(term);
+
+            var result = data
+                .Select(x => x.TenHuyenCu) // sửa theo field tên của bạn
+                .Distinct()
+                .Take(10)
+                .ToList();
+
+            return Json(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Suggest(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return Json(new List<string>());
+
+            var data = await _repo.SearchByNameAsync(keyword);
+
+            var result = data
+                .Where(x => x != null && !string.IsNullOrEmpty(x.TenHuyenCu))
+                .Select(x => x.TenHuyenCu.Trim())
+                .Where(x => x != "")
+                .Distinct()
+                .Take(5)
+                .ToList();
+
+            return Json(result);
+        }
 
     }
 }

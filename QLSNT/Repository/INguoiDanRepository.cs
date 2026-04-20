@@ -12,5 +12,6 @@ namespace QLSNT.Repositories
 
         Task DeleteAsync(string maCccd);
         Task<NguoiDan?> GetByIdentityUserIdAsync(string identityUserId);
+        Task<bool> ExistsAsync(string maCCCD);
     }
 }

@@ -103,6 +103,10 @@ namespace QLSNT.Repositories
             return await _context.NguoiDans
         .FirstOrDefaultAsync(nd => nd.MaCCCD == cccd);
         }
+        public async Task<bool> ExistsAsync(string maCCCD)
+        {
+            return await _context.NguoiDans.AnyAsync(x => x.MaCCCD == maCCCD);
+        }
 
     }
 }

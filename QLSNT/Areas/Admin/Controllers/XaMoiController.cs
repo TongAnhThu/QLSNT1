@@ -133,5 +133,28 @@ namespace QLSNT.Controllers
             });
             return Json(result);
         }
+        [HttpGet]
+        public async Task<IActionResult> Autocomplete(string term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<string>());
+
+            var data = await _repo.SearchByNameAsync(term);
+
+            var result = data
+                .Select(x => x.TenXaMoi) // sửa theo field tên của bạn
+                .Distinct()
+                .Take(10)
+                .ToList();
+
+            return Json(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Suggest(string keyword)
+        {
+            var data = await _repo.SearchByNameAsync(keyword);
+
+            return Json(data.Select(x => x.TenXaMoi).Take(10));
+        }
     }
 }

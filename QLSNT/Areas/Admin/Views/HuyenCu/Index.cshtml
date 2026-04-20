@@ -10,12 +10,28 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <form asp-action="Index" method="get" class="d-flex">
-            <input type="text"
-                   name="search"
-                   value="@ViewBag.Search"
-                   class="form-control me-2"
-                   placeholder="Nhập tên huyện / quận cần tìm..." />
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            <form asp-action="Index" method="get" class="d-flex gap-2">
+
+                <div class="position-relative w-100">
+                    <input type="text"
+                           id="searchBox"
+                           name="search"
+                           value="@ViewBag.Search"
+                           class="form-control"
+                           placeholder="🔍 Nhập tên huyện / quận..."
+                           autocomplete="off" />
+
+                    <div id="suggestions"
+                         class="list-group position-absolute w-100 shadow-sm"
+                         style="top:100%; left:0; z-index:1000; max-height:250px; overflow-y:auto;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Tìm</button>
+
+            </form>
+
+            
         </form>
     </div>
     <div class="col-md-6 text-end">
@@ -67,3 +83,69 @@ else
     <p><em>Không tìm thấy bản ghi nào.</em></p>
 }
 
+<script>
+    const input = document.getElementById("searchBox");
+    const box = document.getElementById("suggestions");
+
+    let timeout = null;
+
+    input.addEventListener("input", function () {
+        const keyword = this.value.trim();
+
+        clearTimeout(timeout);
+
+        timeout = setTimeout(async () => {
+
+            // ❌ rỗng thì ẩn
+            if (keyword.length === 0) {
+                box.innerHTML = "";
+                return;
+            }
+
+            try {
+                const res = await fetch(`/Admin/HuyenCu/Suggest?keyword=${keyword}`);
+                const data = await res.json();
+
+                box.innerHTML = "";
+
+                // ❌ không có kết quả
+                if (!data || data.length === 0) {
+                    box.innerHTML = `<div class="list-group-item text-muted">Không có kết quả</div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+
+                    // ❌ bỏ dữ liệu lỗi/null
+                    if (!item || item.trim() === "") return;
+
+                    const div = document.createElement("div");
+                    div.className = "list-group-item list-group-item-action";
+
+                    // ✅ highlight keyword
+                    const regex = new RegExp(`(${keyword})`, "gi");
+                    div.innerHTML = item.replace(regex, "<strong>$1</strong>");
+
+                    // ✅ click chọn
+                    div.addEventListener("click", () => {
+                        input.value = item;
+                        box.innerHTML = "";
+                    });
+
+                    box.appendChild(div);
+                });
+
+            } catch (err) {
+                console.error("Lỗi autocomplete:", err);
+            }
+
+        }, 300); // debounce 300ms
+    });
+
+    // 👇 click ra ngoài → ẩn dropdown
+    document.addEventListener("click", function (e) {
+        if (!input.contains(e.target) && !box.contains(e.target)) {
+            box.innerHTML = "";
+        }
+    });
+</script>

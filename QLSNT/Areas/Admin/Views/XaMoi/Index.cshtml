@@ -10,11 +10,18 @@
 <div class="row mb-3">
     <div class="col-md-6">
         <form asp-action="Index" method="get" class="d-flex">
-            <input type="text"
-                   name="search"
-                   value="@ViewBag.Search"
-                   class="form-control me-2"
-                   placeholder="Nhập tên xã / phường cần tìm..." />
+            <div class="position-relative w-100">
+                <input type="text"
+                       id="searchBox"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Nhập tên xã / phường cần tìm..." />
+
+                <div id="suggestions"
+                     class="list-group position-absolute w-100 shadow"
+                     style="top:100%; left:0; z-index:1000;"></div>
+            </div>
             <button type="submit" class="btn btn-primary">Tìm kiếm</button>
         </form>
     </div>
@@ -64,3 +71,37 @@ else
 {
     <p><em>Không tìm thấy bản ghi nào.</em></p>
 }
+<script>
+    const input = document.getElementById("searchBox");
+    const box = document.getElementById("suggestions");
+
+    input.addEventListener("input", async function () {
+        const keyword = this.value;
+        console.log("Đang gõ:", keyword); // 👈 thêm dòng này
+
+        if (keyword.length < 1) {
+            box.innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/Admin/XaMoi/Suggest?keyword=${keyword}`);
+        const data = await res.json();
+
+        console.log("Data trả về:", data); // 👈 thêm dòng này
+
+        box.innerHTML = "";
+
+        data.forEach(item => {
+            const div = document.createElement("a");
+            div.classList.add("list-group-item", "list-group-item-action");
+            div.textContent = item;
+
+            div.onclick = () => {
+                input.value = item;
+                box.innerHTML = "";
+            };
+
+            box.appendChild(div);
+        });
+    });
+</script>

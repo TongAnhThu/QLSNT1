@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.VisualStudio.TextTemplating;
 
+
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -81,90 +82,118 @@ namespace QLSNT.Areas.Admin.Controllers
         // ============================
         // BƯỚC 1: THÔNG TIN CƠ BẢN
         // ============================
+        public string GenerateCCCD(DateTime ngaySinh, string gioiTinh, string maTinh)
+        {
+            string ppp = maTinh.PadLeft(3, '0');
+
+            int year = ngaySinh.Year;
+            string g;
+
+            if (gioiTinh == "Nam")
+                g = (year < 2000) ? "0" : "2";
+            else
+                g = (year < 2000) ? "1" : "3";
+
+            string yy = (year % 100).ToString("D2");
+
+            var random = new Random();
+            string nnnnnn = random.Next(0, 999999).ToString("D6");
+
+            return $"{ppp}{g}{yy}{nnnnnn}";
+        }
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             await LoadDropdownsAsync();
-            return View("CreateBasic", new NguoiDan());
+            return View("Create", new NguoiDan());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(NguoiDan nguoiDan)
+        public async Task<IActionResult> Create(
+            NguoiDan nguoiDan,
+            int MaXaMoi,
+            string DiaChiThuongTru
+        )
         {
+            ModelState.Remove("MaCCCD");
+
+            // Validate địa chỉ
+            if (MaXaMoi == 0)
+                ModelState.AddModelError("", "Vui lòng chọn xã");
+
+            if (string.IsNullOrEmpty(DiaChiThuongTru))
+                ModelState.AddModelError("", "Vui lòng nhập địa chỉ");
+
             if (!ModelState.IsValid)
             {
                 await LoadDropdownsAsync();
-                return View("CreateBasic", nguoiDan);
+                return View("Create", nguoiDan);
             }
-            nguoiDan.HoTenKhongDau = RemoveDiacritics(nguoiDan.HoTen);
-            // 1) Lưu người dân
-            await _nguoiDanRepo.AddAsync(nguoiDan);
-            string cccd = nguoiDan.MaCCCD;
 
-            // 2) Tạo Identity User với CCCD làm username
+            // Chuẩn hóa tên
+            nguoiDan.HoTenKhongDau = RemoveDiacritics(nguoiDan.HoTen);
+
+            // 1. Lấy xã → tỉnh
+            var xa = await _xaMoiRepo.GetByIdAsync(MaXaMoi);
+            string maTinh = xa.TinhMoi.MaTinhMoi.ToString("D3");
+
+            // 2. Sinh CCCD
+            string newCCCD;
+            do
+            {
+                newCCCD = GenerateCCCD(
+                    nguoiDan.NgaySinh.Value,
+                    nguoiDan.GioiTinh,
+                    maTinh
+                );
+            }
+            while (await _nguoiDanRepo.ExistsAsync(newCCCD));
+
+            nguoiDan.MaCCCD = newCCCD;
+
+            // 3. Lưu người dân
+            await _nguoiDanRepo.AddAsync(nguoiDan);
+
+            // 4. Lưu thường trú
+            var thuongTru = new ThuongTru
+            {
+                MaCCCD = newCCCD,
+                MaXaMoi = MaXaMoi,
+                DiaChi = DiaChiThuongTru,
+                NgayDangKy = DateTime.Today
+            };
+
+            await _thuongTruRepo.AddAsync(thuongTru);
+
+            // 5. Tạo user
             var user = new IdentityUser
             {
-                UserName = cccd,
-                Email = $"{cccd}@qlsnt.local",
+                UserName = newCCCD,
+                Email = $"{newCCCD}@qlsnt.local",
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user, cccd); // mật khẩu mặc định = CCCD
+            var result = await _userManager.CreateAsync(user, newCCCD);
+
             if (!result.Succeeded)
             {
                 foreach (var err in result.Errors)
                 {
-                    ModelState.AddModelError("", $"{err.Code} - {err.Description}");
+                    ModelState.AddModelError("", err.Description);
                 }
                 await LoadDropdownsAsync();
-                return View("CreateBasic", nguoiDan);
+                return View("Create", nguoiDan);
             }
 
-            // 3) Gán role mặc định "User"
+            // 6. Role
             if (!await _roleManager.RoleExistsAsync("User"))
             {
                 await _roleManager.CreateAsync(new IdentityRole("User"));
             }
+
             await _userManager.AddToRoleAsync(user, "User");
 
-            // 4) Chuyển sang bước 2
-            TempData["SuccessMessage"] = "Đăng ký người dân thành công. Vui lòng nhập địa chỉ thường trú!";
-            return RedirectToAction("CreateDetails", new { maCCCD = cccd });
-        }
-
-        // ============================
-        // BƯỚC 2: ĐỊA CHỈ THƯỜNG TRÚ
-        // ============================
-        [HttpGet]
-        public async Task<IActionResult> CreateDetails(string maCCCD)
-        {
-            if (string.IsNullOrWhiteSpace(maCCCD))
-                return RedirectToAction("Create");
-
-            await LoadDropdownsAsync();
-            var model = new NguoiDanCreateViewModel { MaCCCD = maCCCD };
-            return View("CreateDetails", model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateDetails(NguoiDanCreateViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                await LoadDropdownsAsync();
-                return View("CreateDetails", model);
-            }
-
-            var thuongTru = new ThuongTru
-            {
-                MaCCCD = model.MaCCCD,
-                MaXaMoi = model.MaXaMoi,
-                DiaChi = model.DiaChiThuongTru,
-                NgayDangKy = DateTime.Today
-            };
-            await _thuongTruRepo.AddAsync(thuongTru);
-
-            TempData["SuccessMessage"] = "Đăng ký người dân hoàn tất!";
+            TempData["SuccessMessage"] = $"Tạo thành công CCCD: {newCCCD}";
             return RedirectToAction("Index", "NguoiDan", new { area = "Admin" });
         }
 
@@ -304,15 +333,15 @@ namespace QLSNT.Areas.Admin.Controllers
             return View("Details", model);
         }
         [HttpGet]
-        public async Task<IActionResult> GetXaByTinh(int maTinhMoi)
+        public async Task<JsonResult> GetXaByTinh(int maTinh)
         {
-            var xaList = await _xaMoiRepo.GetByTinhAsync(maTinhMoi);
-            var result = xaList.Select(x => new
+            var xaList = await _xaMoiRepo.GetByTinhAsync(maTinh);
+
+            return Json(xaList.Select(x => new
             {
-                maXaMoi = x.MaXaMoi,
-                tenXaMoi = x.TenXaMoi
-            });
-            return Json(result);
+                id = x.MaXaMoi,
+                name = x.TenXaMoi
+            }));
         }
         private async Task<string> GenerateMaLichSuCuTruAsync()
         {
@@ -343,8 +372,9 @@ namespace QLSNT.Areas.Admin.Controllers
             }
             return sb.ToString().Normalize(NormalizationForm.FormC);
         }
+
+       
+
+
     }
-
-
-
 }
