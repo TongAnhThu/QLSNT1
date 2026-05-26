@@ -1,0 +1,95 @@
+﻿@model DiaChiMoiViewModel
+
+@{
+    ViewData["Title"] = "Kết quả tra cứu";
+}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-success text-white">
+
+            <h3>
+                Kết quả tra cứu
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <tr>
+                    <th width="30%">
+                       Địa Chỉ Tra Cứu
+                    </th>
+
+                    <td>
+                        @Model.DiaChiCu
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        Xã cũ
+                    </th>
+
+                    <td>
+                        @Model.TenXaCu
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                       Huyện Cũ
+                    </th>
+
+                    <td>
+                        @Model.TenHuyenCu
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                       Tỉnh Cũ
+                    </th>
+
+                    <td>
+                        @Model.TenTinhnCu
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Xã mới
+                    </th>
+
+                    <td class="text-success fw-bold">
+                        @Model.TenXaMoi
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>
+                        Tỉnh mới
+                    </th>
+
+                    <td class="text-primary fw-bold">
+                        @Model.TenTinhMoi
+                    </td>
+                </tr>
+
+            </table>
+
+            <a asp-area="User"
+               asp-controller="TraCuu"
+               asp-action="Index"
+               class="btn btn-secondary">
+
+                Quay lại
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

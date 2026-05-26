@@ -7,8 +7,8 @@ namespace QLSNT.Models
     {
         [Key]
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int MaTinhCu { get; set; } = default!;
+        
+        public int MaTinhCu { get; set; } 
 
         // Thuộc tính
         public string TenTinhCu { get; set; } = default!;

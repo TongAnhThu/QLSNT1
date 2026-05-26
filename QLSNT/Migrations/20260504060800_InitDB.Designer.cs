@@ -12,8 +12,8 @@ using QLSNT.Data;
 namespace QLSNT.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260415034550_1")]
-    partial class _1
+    [Migration("20260504060800_InitDB")]
+    partial class InitDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

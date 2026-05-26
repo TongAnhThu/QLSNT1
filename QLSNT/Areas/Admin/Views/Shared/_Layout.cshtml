@@ -1,215 +1,220 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - QLSNT</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/QLSNT.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 56px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            height: calc(100vh - 56px);
+            background-color: #212529;
+            color: white;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            overflow-y: auto;
+        }
+
+            .sidebar h4 {
+                text-align: center;
+                padding: 15px;
+                border-bottom: 1px solid #444;
+            }
+
+            .sidebar .nav-link {
+                color: white;
+                padding: 8px 15px;
+                display: block;
+                text-decoration: none;
+            }
+
+                .sidebar .nav-link:hover {
+                    background-color: #0d6efd;
+                    border-radius: 5px;
+                }
+
+        .section-title {
+            font-weight: bold;
+            margin: 10px 0 5px 10px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* CONTENT */
+        .content {
+            margin-left: 250px;
+            margin-top: 56px;
+            padding: 20px;
+        }
+    </style>
 </head>
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    QLSNT
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between" id="mainNavbar">
-                    <ul class="navbar-nav flex-grow-1">
-                        <!-- Trang chủ (ngoài admin) -->
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm fixed-top">
+        <div class="container-fluid">
+
+            <!-- Logo -->
+            <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                QLSNT
+            </a>
+
+            <!-- Toggle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+
+                <!-- LEFT -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                            Trang chủ
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- RIGHT -->
+                <ul class="navbar-nav ms-auto">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
-                                Trang chủ
-                            </a>
+                            <span class="nav-link">
+                                Xin chào, <strong>@User.Identity.Name</strong>
+                            </span>
                         </li>
 
-                        <!-- Danh mục cá nhân -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="dmCaNhanDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Danh mục cá nhân
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dmCaNhanDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">
-                                        Người dân
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="DanToc" asp-action="Index">
-                                        Dân tộc
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="TonGiao" asp-action="Index">
-                                        Tôn giáo
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="TrinhDoVanHoa" asp-action="Index">
-                                        Trình độ văn hóa
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="QuanHeChuHo" asp-action="Index">
-                                        Quan hệ với chủ hộ
-                                    </a>
-                                </li>
-                            </ul>
+                        <li class="nav-item">
+                            <form asp-area="Identity" asp-page="/Account/Logout" method="post">
+                                <button type="submit" class="btn btn-outline-danger ms-2">
+                                    Đăng xuất
+                                </button>
+                            </form>
                         </li>
-
-                        <!-- Đơn vị hành chính cũ -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="dvHanhChinhCuDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Đơn vị hành chính cũ
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+                                Đăng nhập
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="dvHanhChinhCuDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="TinhCu" asp-action="Index">
-                                        Tỉnh cũ
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="HuyenCu" asp-action="Index">
-                                        Huyện cũ
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="XaCu" asp-action="Index">
-                                        Xã cũ
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+                    }
+                </ul>
 
-                        <!-- Đơn vị hành chính mới -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="dvHanhChinhMoiDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Đơn vị hành chính mới
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dvHanhChinhMoiDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="TinhMoi" asp-action="Index">
-                                        Tỉnh mới
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="XaMoi" asp-action="Index">
-                                        Xã mới
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Cư trú -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="cuTruDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Cư trú
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="cuTruDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="ThuongTru" asp-action="Index">
-                                        Thường trú
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="TamTru" asp-action="Index">
-                                        Tạm trú
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="LichSuDiaChi" asp-action="Index">
-                                       Lịch sử địa chỉ
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Sự kiện & Lịch sử sáp nhập -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="suKienDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Sự kiện & Lịch sử sáp nhập
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="suKienDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="SuKienHanhChinh" asp-action="Index">
-                                        Sự kiện hành chính
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="LichSuSapNhap" asp-action="Index">
-                                        Lịch sử sáp nhập
-                                    </a>
-                                </li>
-                                
-                            </ul>
-                        </li>
-
-                        <!-- Privacy giữ lại cho tiện (ngoài admin) -->
-                        <ul class="navbar-nav ms-auto">
-
-                            @if (User.Identity != null && User.Identity.IsAuthenticated)
-                            {
-                                <li class="nav-item">
-                                    <span class="nav-link text-dark">
-                                        Xin chào, <strong>@User.Identity.Name</strong>
-                                    </span>
-                                </li>
-
-                                <li class="nav-item">
-                                    <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-danger ms-2">
-                                            Đăng xuất
-                                        </button>
-                                    </form>
-                                </li>
-                            }
-                            else
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">
-                                        Đăng nhập
-                                    </a>
-                                </li>
-                            }
-
-                        </ul>
-
-                    
-
-
-
-                </div>
             </div>
-        </nav>
-    </header>
+        </div>
+    </nav>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h4>ADMIN</h4>
+
+        <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">📊 Trang chủ</a>
+
+        <div class="section-title">
+            <a class="nav-link text-white" data-bs-toggle="collapse" href="#nguoiDanMenu" role="button">
+                👨‍👩‍👧 Người dân
+            </a>
+        </div>
+
+        <div class="collapse" id="nguoiDanMenu">
+
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">
+                Người dân
+            </a>
+
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="DanToc" asp-action="Index">
+                Dân tộc
+            </a>
+
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TonGiao" asp-action="Index">
+                Tôn giáo
+            </a>
+
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TrinhDoVanHoa" asp-action="Index">
+                Trình độ văn hóa
+            </a>
+
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="QuanHeChuHo" asp-action="Index">
+                Quan hệ chủ hộ
+            </a>
+
+        </div>
+        <!-- ĐVHC cũ -->
+        <div class="section-title">
+            <a class="nav-link text-white" data-bs-toggle="collapse" href="#dvhcCuMenu">
+                🏛️ ĐVHC cũ
+            </a>
+        </div>
+        <div class="collapse" id="dvhcCuMenu">
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TinhCu" asp-action="Index">Tỉnh</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="HuyenCu" asp-action="Index">Huyện</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="XaCu" asp-action="Index">Xã</a>
+        </div>
+
+        <!-- ĐVHC mới -->
+        <div class="section-title">
+            <a class="nav-link text-white" data-bs-toggle="collapse" href="#dvhcMoiMenu">
+                🏢 ĐVHC mới
+            </a>
+        </div>
+        <div class="collapse" id="dvhcMoiMenu">
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TinhMoi" asp-action="Index">Tỉnh</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="XaMoi" asp-action="Index">Xã</a>
+        </div>
+
+        <!-- Cư trú -->
+        <div class="section-title">
+            <a class="nav-link text-white" data-bs-toggle="collapse" href="#cuTruMenu">
+                🏠 Cư trú
+            </a>
+        </div>
+        <div class="collapse" id="cuTruMenu">
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="ThuongTru" asp-action="Index">Thường trú</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TamTru" asp-action="Index">Tạm trú</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="LichSuDiaChi" asp-action="Index">Lịch sử địa chỉ</a>
+        </div>
+
+        <!-- Sự kiện -->
+        <div class="section-title">
+            <a class="nav-link text-white" data-bs-toggle="collapse" href="#suKienMenu">
+                📜 Sự kiện
+            </a>
+        </div>
+        <div class="collapse" id="suKienMenu">
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="SuKienHanhChinh" asp-action="Index">Sự kiện hành chính</a>
+            <a class="nav-link ms-3" asp-area="Admin" asp-controller="LichSuSapNhap" asp-action="Index">Lịch sử sáp nhập</a>
+        </div>
+    </div>
+    <!-- CONTENT -->
+    <div class="content">
+        @RenderBody()
     </div>
 
-    <footer class="border-top footer text-muted mt-auto">
-        <div class="container">
-            &copy; 2025 - QLSNT -
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- SCRIPT -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

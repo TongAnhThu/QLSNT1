@@ -1,0 +1,93 @@
+﻿<style>
+    body {
+        margin: 0;
+    }
+
+    .wrapper {
+        display: flex;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        background-color: #212529;
+        color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        overflow-y: auto;
+    }
+
+        .sidebar h4 {
+            text-align: center;
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+    .nav-link {
+        color: white;
+        padding: 8px 15px;
+        display: block;
+        text-decoration: none;
+    }
+
+        .nav-link:hover {
+            background-color: #0d6efd;
+            border-radius: 5px;
+        }
+
+    .section-title {
+        font-weight: bold;
+        margin: 10px 0 5px 10px;
+        font-size: 14px;
+        color: #ccc;
+    }
+
+    .content {
+        margin-left: 250px; /* QUAN TRỌNG */
+        padding: 20px;
+        width: 100%;
+    }
+</style>
+<div class="wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h4>ADMIN</h4>
+
+        <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">
+            📊 Trang chủ
+        </a>
+
+        <div class="section-title">👨‍👩‍👧 Người dân</div>
+        <a class="nav-link" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">Người dân</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="DanToc" asp-action="Index">Dân tộc</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="TonGiao" asp-action="Index">Tôn giáo</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="TrinhDoVanHoa" asp-action="Index">Trình độ văn hóa</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="QuanHeChuHo" asp-action="Index">Quan hệ chủ hộ</a>
+
+        <div class="section-title">🏛️ ĐVHC cũ</div>
+        <a class="nav-link" asp-area="Admin" asp-controller="TinhCu" asp-action="Index">Tỉnh</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="HuyenCu" asp-action="Index">Huyện</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="XaCu" asp-action="Index">Xã</a>
+
+        <div class="section-title">🏢 ĐVHC mới</div>
+        <a class="nav-link" asp-area="Admin" asp-controller="TinhMoi" asp-action="Index">Tỉnh</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="XaMoi" asp-action="Index">Xã</a>
+
+        <div class="section-title">🏠 Cư trú</div>
+        <a class="nav-link" asp-area="Admin" asp-controller="ThuongTru" asp-action="Index">Thường trú</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="TamTru" asp-action="Index">Tạm trú</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="LichSuDiaChi" asp-action="Index">Lịch sử địa chỉ</a>
+
+        <div class="section-title">📜 Sự kiện</div>
+        <a class="nav-link" asp-area="Admin" asp-controller="SuKienHanhChinh" asp-action="Index">Sự kiện hành chính</a>
+        <a class="nav-link" asp-area="Admin" asp-controller="LichSuSapNhap" asp-action="Index">Lịch sử sáp nhập</a>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="sidebar">
+        <!-- menu của bạn -->
+    </div>
+
+</div>

@@ -1,8 +1,129 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard Admin";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .wrapper {
+        display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        background-color: #212529;
+        color: white;
+        position: fixed;
+    }
+
+        .sidebar h4 {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #444;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+            padding: 8px 15px;
+            display: block;
+            text-decoration: none;
+        }
+
+            .sidebar .nav-link:hover {
+                background-color: #0d6efd;
+                border-radius: 5px;
+            }
+
+        .sidebar .section-title {
+            font-weight: bold;
+            margin: 10px 0 5px 10px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+    /* Content */
+    .content {
+        margin-left: 250px;
+        padding: 20px;
+        width: 100%;
+    }
+
+    .card {
+        border-radius: 10px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .bg-primary {
+        background-color: #0d6efd;
+    }
+
+    .bg-success {
+        background-color: #198754;
+    }
+
+    .bg-warning {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .row {
+        display: flex;
+        gap: 20px;
+    }
+
+    .col {
+        flex: 1;
+    }
+</style>
+
+<div class="wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h4>ADMIN</h4>
+
+      
+
+    <!-- CONTENT -->
+    <div class="content">
+        <h2>📊 Dashboard</h2>
+
+        <div class="row">
+            <div class="col">
+                <div class="card bg-primary">
+                    <h5>Người dân</h5>
+                    <h2>@ViewBag.NguoiDanCount</h2>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card bg-success">
+                    <h5>Tạm trú</h5>
+                    <h2>@ViewBag.TamTruCount</h2>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card bg-warning">
+                    <h5>Thường trú</h5>
+                    <h2>@ViewBag.ThuongTruCount</h2>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <h4>⚡ Truy cập nhanh</h4>
+        <a class="btn btn-primary" href="/Admin/NguoiDan">Người dân</a>
+        <a class="btn btn-success" href="/Admin/TamTru">Tạm trú</a>
+        <a class="btn btn-warning" href="/Admin/ThuongTru">Thường trú</a>
+    </div>
+
 </div>

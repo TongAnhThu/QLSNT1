@@ -7,8 +7,8 @@ namespace QLSNT.Models
     {
         [Key]
         [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int MaTinhMoi { get; set; } = default!;   // PK
+
+        public int MaTinhMoi { get; set; }   // PK
         public string TenTinhMoi { get; set; } = default!;
         public double? DienTich { get; set; }
         public long? DanSo { get; set; }
