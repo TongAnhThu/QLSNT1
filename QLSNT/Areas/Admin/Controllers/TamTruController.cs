@@ -112,43 +112,112 @@ namespace QLSNT.Areas.Admin.Controllers
         }
 
         // GET: Admin/TamTru/Create
+        // GET: Admin/TamTru/Create
         public async Task<IActionResult> Create(string? maCCCD)
         {
-            ViewBag.NguoiDanList = new SelectList(await _nguoiDanRepo.GetAllAsync(), "maCCCD", "HoTen", maCCCD);
-            ViewBag.TinhMoiList = new SelectList(await _tinhMoiRepo.GetAllAsync(), "MaTinhMoi", "TenTinhMoi");
-            // Xã mới ban đầu để rỗng
-            ViewBag.XaMoiList = new SelectList(Enumerable.Empty<XaMoi>(), "MaXaMoi", "TenXaMoi");
+            ViewBag.NguoiDanList = new SelectList(
+            await _nguoiDanRepo.GetAllAsync(),
+            "MaCCCD",
+            "HoTen",
+            maCCCD);
+
+ViewBag.TinhMoiList = new SelectList(
+    await _tinhMoiRepo.GetAllAsync(),
+    "MaTinhMoi",
+    "TenTinhMoi");
+
+            ViewBag.XaMoiList = new SelectList(
+                Enumerable.Empty<XaMoi>(),
+                "MaXaMoi",
+                "TenXaMoi");
 
             var model = new TamTru
             {
                 MaCCCD = maCCCD,
                 NgayDangKy = DateTime.Today
             };
-            return View(model);
-        }
 
+            return View(model);
+
+
+}
 
         // POST: Admin/TamTru/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TamTru model)
+        public async Task<IActionResult> Create(TamTru tamTru)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.NguoiDanList = new SelectList(await _nguoiDanRepo.GetAllAsync(), "maCCCD", "HoTen", model.MaCCCD);
-                ViewBag.TinhMoiList = new SelectList(await _tinhMoiRepo.GetAllAsync(), "MaTinhMoi", "TenTinhMoi", model.MaTinhMoi);
+                ViewBag.NguoiDanList = new SelectList(
+                await _nguoiDanRepo.GetAllAsync(),
+                "MaCCCD",
+                "HoTen",
+                tamTru.MaCCCD);
 
-                // nạp xã theo tỉnh đã chọn
-                var xaMoi = await _xaMoiRepo.GetByTinhAsync(model.MaTinhMoi);
-                ViewBag.XaMoiList = new SelectList(xaMoi, "MaXaMoi", "TenXaMoi", model.MaXaMoi);
 
-                return View(model);
+    ViewBag.TinhMoiList = new SelectList(
+        await _tinhMoiRepo.GetAllAsync(),
+        "MaTinhMoi",
+        "TenTinhMoi",
+        tamTru.MaTinhMoi);
+
+                var xaMoi = await _xaMoiRepo.GetByTinhAsync(tamTru.MaTinhMoi);
+
+                ViewBag.XaMoiList = new SelectList(
+                    xaMoi,
+                    "MaXaMoi",
+                    "TenXaMoi",
+                    tamTru.MaXaMoi);
+
+                return View(tamTru);
             }
 
-            await _tamTruRepo.AddAsync(model);
-            TempData["SuccessMessage"] = "Thêm địa chỉ tạm trú thành công.";
-            return RedirectToAction(nameof(Index), new { maCCCD = model.MaCCCD });
-        }
+            await _tamTruRepo.AddAsync(tamTru);
+
+            var xa = await _context.XaMois
+                .Include(x => x.TinhMoi)
+                .FirstOrDefaultAsync(x =>
+                    x.MaXaMoi == tamTru.MaXaMoi);
+
+            var lichSu = new LichSuDiaChi
+            {
+                MaLichSuCuTru = Guid.NewGuid()
+                    .ToString("N")
+                    .Substring(0, 10),
+
+                MaCCCD = tamTru.MaCCCD,
+
+                MaXaMoi = tamTru.MaXaMoi,
+
+                DiaChiCu = "",
+
+                DiaChiMoi =
+                    $"{tamTru.DiaChi}, " +
+                    $"{xa?.TenXaMoi}, " +
+                    $"{xa?.TinhMoi?.TenTinhMoi}",
+
+                LoaiThayDoi = "Đăng ký tạm trú",
+
+                NgayHieuLuc = DateTime.Now,
+
+                NgayTao = DateTime.Now,
+
+                NguoiTao = User.Identity?.Name
+            };
+
+            _context.LichSuDiaChis.Add(lichSu);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] =
+                "Thêm địa chỉ tạm trú thành công.";
+
+            return RedirectToAction(nameof(Index));
+
+
+}
+
 
 
         // GET: Admin/TamTru/Edit
@@ -203,6 +272,22 @@ namespace QLSNT.Areas.Admin.Controllers
             await _tamTruRepo.DeleteAsync(maXaMoi, maCCCD);
             TempData["SuccessMessage"] = "Xoá địa chỉ tạm trú thành công.";
             return RedirectToAction(nameof(Index), new { maCCCD });
+        }
+        [HttpGet]
+        public IActionResult GetNguoiDan(string cccd)
+        {
+            var nguoiDan = _context.NguoiDans
+                .FirstOrDefault(x => x.MaCCCD == cccd);
+
+            if (nguoiDan == null)
+                return Json(null);
+
+            return Json(new
+            {
+                hoTen = nguoiDan.HoTen,
+                ngaySinh = nguoiDan.NgaySinh?.ToString("dd/MM/yyyy"),
+                gioiTinh = nguoiDan.GioiTinh
+            });
         }
     }
 }

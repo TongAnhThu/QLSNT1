@@ -1,29 +1,249 @@
 ﻿@model QLSNT.Models.ThuongTru
 
 @{
-    ViewData["Title"] = "Thêm Thường trú";
+    ViewData["Title"] = "Thêm thường trú";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container mt-4">
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="MaXaMoi">Xã mới</label>
-        <select asp-for="MaXaMoi" class="form-control" asp-items="ViewBag.MaXaMoi"></select>
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thêm thông tin thường trú</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Create" method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- Tỉnh -->
+                <div class="mb-3">
+                    <label class="form-label">Tỉnh</label>
+
+                    <select id="MaTinh"
+                            class="form-select"
+                            asp-items="ViewBag.TinhList">
+                        <option value="">-- Chọn tỉnh --</option>
+                    </select>
+                </div>
+
+                <!-- Xã -->
+                <div class="mb-3">
+                    <label asp-for="MaXaMoi" class="form-label">
+                        Xã mới
+                    </label>
+
+                    <select asp-for="MaXaMoi"
+                            id="MaXaMoi"
+                            class="form-select">
+                        <option value="">-- Chọn xã --</option>
+                    </select>
+
+                    <span asp-validation-for="MaXaMoi"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- CCCD -->
+                <div class="mb-3">
+                    <label asp-for="MaCCCD" class="form-label">
+                        CCCD
+                    </label>
+
+                    <input asp-for="MaCCCD"
+                           id="MaCCCD"
+                           class="form-control"
+                           maxlength="12"
+                           placeholder="Nhập CCCD" />
+
+                    <span id="cccdError"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Thông tin người dân -->
+                <div id="thongTinNguoiDan"
+                     class="card border-info mb-3"
+                     style="display:none;">
+
+                    <div class="card-header bg-info text-white">
+                        Thông tin người dân
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row">
+
+                            <div class="col-md-4">
+                                <strong>Họ tên:</strong><br />
+                                <span id="HoTen"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Ngày sinh:</strong><br />
+                                <span id="NgaySinh"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Giới tính:</strong><br />
+                                <span id="GioiTinh"></span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Địa chỉ -->
+                <div class="mb-3">
+                    <label asp-for="DiaChi" class="form-label">
+                        Địa chỉ chi tiết
+                    </label>
+
+                    <input asp-for="DiaChi"
+                           class="form-control"
+                           placeholder="Ví dụ: Ấp 1, Tổ 2..." />
+
+                    <span asp-validation-for="DiaChi"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <!-- Ngày đăng ký -->
+                <div class="mb-3">
+                    <label asp-for="NgayDangKy"
+                           class="form-label">
+                        Ngày đăng ký
+                    </label>
+
+                    <input asp-for="NgayDangKy"
+                           type="date"
+                           class="form-control" />
+
+                    <span asp-validation-for="NgayDangKy"
+                          class="text-danger">
+                    </span>
+                </div>
+
+                <div class="mt-4">
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Lưu
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-secondary">
+                        Quay lại
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
     </div>
-    <div class="form-group">
-        <label for="MaCCCD">Người dân</label>
-        <select asp-for="MaCCCD" class="form-control" asp-items="ViewBag.MaCCCD"></select>
-    </div>
-    <div class="form-group">
-        <label asp-for="DiaChi"></label>
-        <input asp-for="DiaChi" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="NgayDangKy"></label>
-        <input asp-for="NgayDangKy" type="date" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Lưu</button>
-    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
-</form>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        $("#MaTinh").change(function () {
+
+            var maTinh = $(this).val();
+
+            $("#MaXaMoi").empty();
+            $("#MaXaMoi").append(
+                '<option value="">-- Chọn xã --</option>'
+            );
+
+            if (maTinh) {
+
+                $.get('/Admin/ThuongTru/GetXaByTinh',
+                    { maTinh: maTinh },
+                    function (data) {
+
+                        $.each(data, function (i, item) {
+
+                            $("#MaXaMoi").append(
+                                '<option value="' +
+                                item.maXaMoi +
+                                '">' +
+                                item.tenXaMoi +
+                                '</option>'
+                            );
+
+                        });
+
+                    });
+
+            }
+
+        });
+
+    </script>
+
+    <script>
+
+        $("#MaCCCD").keyup(function () {
+
+            var cccd = $(this).val();
+
+            if (cccd.length != 12) {
+
+                $("#thongTinNguoiDan").hide();
+                $("#cccdError").text("");
+
+                return;
+            }
+
+            $.ajax({
+
+                url: '/Admin/ThuongTru/GetNguoiDan',
+                type: 'GET',
+                data: { cccd: cccd },
+
+                success: function (data) {
+
+                    if (!data) {
+
+                        $("#cccdError").text("Không tìm thấy CCCD");
+
+                        $("#thongTinNguoiDan").hide();
+
+                        return;
+                    }
+
+                    $("#cccdError").text("");
+
+                    $("#HoTen").text(data.hoTen);
+                    $("#NgaySinh").text(data.ngaySinh);
+                    $("#GioiTinh").text(data.gioiTinh);
+
+                    $("#thongTinNguoiDan").show();
+                },
+
+                error: function () {
+
+                    $("#cccdError").text("Có lỗi xảy ra khi tra cứu CCCD");
+
+                    $("#thongTinNguoiDan").hide();
+                }
+
+            });
+
+        });
+
+    </script>
+}

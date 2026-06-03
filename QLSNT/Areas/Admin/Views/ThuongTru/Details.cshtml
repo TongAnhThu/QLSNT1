@@ -7,21 +7,70 @@
 
 <h2>@ViewData["Title"]</h2>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">Xã mới</dt>
-        <dd class="col-sm-9">@Model.XaMoi?.TenXaMoi</dd>
+<div class="card shadow-sm">
 
-        <dt class="col-sm-3">Người dân</dt>
-        <dd class="col-sm-9">@Model.NguoiDan?.HoTen</dd>
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            Thông tin thường trú
+        </h5>
+    </div>
 
-        <dt class="col-sm-3">Địa chỉ</dt>
-        <dd class="col-sm-9">@Model.DiaChi</dd>
+    <div class="card-body">
 
-        <dt class="col-sm-3">Ngày đăng ký</dt>
-        <dd class="col-sm-9">@Model.NgayDangKy?.ToString("dd/MM/yyyy")</dd>
-    </dl>
+        <table class="table table-bordered">
+
+            <tr>
+                <th width="25%">Người dân</th>
+                <td>@Model.NguoiDan?.HoTen</td>
+            </tr>
+            <tr>
+                <th>Ngày Sinh</th>
+                <td>@Model.NguoiDan?.NgaySinh</td>
+            </tr>
+            <tr>
+                <th>CCCD</th>
+                <td>@Model.MaCCCD</td>
+            </tr>
+
+           
+
+            <tr>
+                <th>Địa chỉ</th>
+                <td>
+                    @Model.DiaChi,
+                    @Model.XaMoi?.TenXaMoi
+                    @if (Model.XaMoi?.TinhMoi != null)
+                    {
+                        <span>, @Model.XaMoi.TinhMoi.TenTinhMoi</span>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <th>Ngày đăng ký</th>
+                <td>
+                    @Model.NgayDangKy?.ToString("dd/MM/yyyy")
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+
+    <div class="card-footer">
+
+        <a asp-action="Edit"
+           asp-route-maXaMoi="@Model.MaXaMoi"
+           asp-route-maCCCD="@Model.MaCCCD"
+           class="btn btn-warning">
+            Sửa
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Quay lại
+        </a>
+
+    </div>
+
 </div>
-
-<a asp-action="Edit" asp-route-maXaMoi="@Model.MaXaMoi" asp-route-maCCCD="@Model.MaCCCD" class="btn btn-warning">Sửa</a>
-<a asp-action="Index" class="btn btn-secondary">Quay lại</a>

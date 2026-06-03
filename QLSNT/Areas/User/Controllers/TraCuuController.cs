@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QLSNT.Areas.User.ViewModel;
 using QLSNT.Data;
 using QLSNT.Models;
 
@@ -33,169 +35,106 @@ namespace QLSNT.Areas.User.Controllers
         [HttpPost]
         public IActionResult TimKiem(string diaChiCu)
         {
-            // Kiểm tra rỗng
             if (string.IsNullOrWhiteSpace(diaChiCu))
             {
-                ViewBag.Message =
-                    "Vui lòng nhập địa chỉ";
+                ViewBag.Message = "Vui lòng nhập địa chỉ";
 
                 return View("Index");
             }
 
-            // Chuẩn hóa chuỗi
-            string keyword =
-                RemoveVietnameseTone(
-                    diaChiCu.ToLower().Trim()
-                );
+            // Chuẩn hóa dữ liệu nhập
+            string tenXaNhap = RemoveVietnameseTone(
+                                    diaChiCu
+                                        .ToLower()
+                                        .Replace("xã", "")
+                                        .Replace("phường", "")
+                                        .Trim()
+                                );
 
             // =====================================
-            // TÁCH ĐỊA CHỈ
+            // TÌM TẤT CẢ XÃ CŨ TRÙNG TÊN
             // =====================================
 
-            string[] parts = diaChiCu.Split(',');
-
-            string tenXaNhap = "";
-
-            if (parts.Length > 0)
-            {
-                tenXaNhap = parts[0];
-            }
-
-            // Chuẩn hóa tên xã nhập vào
-            tenXaNhap = RemoveVietnameseTone(
-                            tenXaNhap
-                                .ToLower()
-                                .Replace("xã", "")
-                                .Replace("phường", "")
-                                .Trim()
-                        );
-
-            // =====================================
-            // TÌM XÃ CŨ
-            // =====================================
-
-            var xaCu = _context.XaCus
-
+            var dsXaCu = _context.XaCus
+                .Include(x => x.HuyenCu)
                 .ToList()
-
-                .FirstOrDefault(x =>
-
+                .Where(x =>
                     RemoveVietnameseTone(
                         x.TenXaCu.ToLower()
                     )
-
                     .Replace("xã", "")
                     .Replace("phường", "")
                     .Trim()
-
                     .Contains(tenXaNhap)
-                );
+                )
+                .ToList();
 
-            // Không tìm thấy xã cũ
-            if (xaCu == null)
+            if (!dsXaCu.Any())
             {
-                ViewBag.Message =
-                    "Không tìm thấy xã cũ";
+                ViewBag.Message = "Không tìm thấy xã cũ";
 
                 return View("Index");
             }
 
             // =====================================
-            // LẤY HUYỆN CŨ
+            // DANH SÁCH KẾT QUẢ
             // =====================================
 
-            var huyenCu = _context.HuyenCus
-                .FirstOrDefault(x =>
-                    x.MaHuyenCu == xaCu.MaHuyenCu
-                );
+            List<KetQuaXaMoiViewModel> dsKetQua =
+                new List<KetQuaXaMoiViewModel>();
 
-            // =====================================
-            // LẤY TỈNH CŨ
-            // =====================================
-
-            var tinhCu = _context.TinhCus
-                .FirstOrDefault(x =>
-                    x.MaTinhCu == xaCu.HuyenCu.MaTinhCu
-                );
-
-            // =====================================
-            // TRA BẢNG LSSN_XA
-            // =====================================
-
-            var lssnXa = _context.LssnXas
-     .FirstOrDefault(x =>
-         x.MaXaCu == xaCu.MaXaCu
-     );
-            // Không có dữ liệu sáp nhập
-            if (lssnXa == null)
+            foreach (var xaCu in dsXaCu)
             {
-                ViewBag.Message =
-                    "Không tìm thấy dữ liệu sáp nhập";
+                var huyenCu = _context.HuyenCus
+                    .FirstOrDefault(x =>
+                        x.MaHuyenCu == xaCu.MaHuyenCu);
 
-                return View("Index");
+                var tinhCu = _context.TinhCus
+                    .FirstOrDefault(x =>
+                        x.MaTinhCu == huyenCu.MaTinhCu);
+
+                var lssnXa = _context.LssnXas
+                    .Where(x =>
+                        x.MaXaCu == xaCu.MaXaCu)
+                    .Include(x => x.XaMoi)
+                    .ToList();
+
+                foreach (var item in lssnXa)
+                {
+                    var tinhMoi = _context.TinhMois
+                        .FirstOrDefault(x =>
+                            x.MaTinhMoi ==
+                            item.XaMoi.MaTinh);
+
+                    dsKetQua.Add(
+                        new KetQuaXaMoiViewModel
+                        {
+                            TenXaCu = xaCu.TenXaCu,
+
+                            TenHuyenCu = huyenCu != null
+                                ? huyenCu.TenHuyenCu
+                                : "",
+
+                            TenTinhCu = tinhCu != null
+                                ? tinhCu.TenTinhCu
+                                : "",
+
+                            TenXaMoi = item.XaMoi.TenXaMoi,
+
+                            TenTinhMoi = tinhMoi != null
+                                ? tinhMoi.TenTinhMoi
+                                : ""
+                        });
+                }
             }
-
-            // =====================================
-            // LẤY XÃ MỚI
-            // =====================================
-
-            var xaMoi = _context.XaMois
-                .FirstOrDefault(x =>
-                    x.MaXaMoi == lssnXa.MaXaMoi
-                );
-
-            // Không có xã mới
-            if (xaMoi == null)
-            {
-                ViewBag.Message =
-                    "Không tìm thấy xã mới";
-
-                return View("Index");
-            }
-
-            // =====================================
-            // LẤY HUYỆN MỚI
-            // =====================================
-
-            
-
-            // =====================================
-            // LẤY TỈNH MỚI
-            // =====================================
-
-            var tinhMoi = _context.TinhMois
-                .FirstOrDefault(x =>
-                    x.MaTinhMoi == xaMoi.MaTinh
-                );
-
-            // =====================================
-            // VIEWMODEL
-            // =====================================
 
             var result = new DiaChiMoiViewModel
             {
                 DiaChiCu = diaChiCu,
-
-                // CŨ
-                TenXaCu = xaCu.TenXaCu,
-
-                TenHuyenCu = huyenCu != null
-                    ? huyenCu.TenHuyenCu
-                    : "",
-
-                TenTinhnCu = tinhCu != null
-                    ? tinhCu.TenTinhCu
-                    : "",
-
-                // MỚI
-                TenXaMoi = xaMoi.TenXaMoi,
-
-                TenTinhMoi = tinhMoi != null
-                    ? tinhMoi.TenTinhMoi
-                    : ""
+                DsXaMoi = dsKetQua
             };
 
-            return View("KetQua", result);
+            return View("Index", result);
         }
 
         // =====================================

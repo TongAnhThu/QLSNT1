@@ -76,6 +76,7 @@ namespace QLSNT.Controllers
             }
 
             var result = await query.OrderByDescending(x => x.NgayDangKy).ToListAsync();
+
             return View(result);
         }
 
@@ -87,46 +88,162 @@ namespace QLSNT.Controllers
 
             var thuongTru = await _context.ThuongTrus
                 .Include(t => t.XaMoi)
+                    .ThenInclude(x => x.TinhMoi)
                 .Include(t => t.NguoiDan)
-                .FirstOrDefaultAsync(m => m.MaXaMoi == maXaMoi && m.MaCCCD == maCCCD);
+                .FirstOrDefaultAsync(m =>
+                    m.MaXaMoi == maXaMoi &&
+                    m.MaCCCD == maCCCD);
 
             if (thuongTru == null)
                 return NotFound();
 
             return View(thuongTru);
         }
+        [HttpGet]
+        public async Task<JsonResult> GetNguoiDan(string cccd)
+        {
+            var nguoiDan = await _context.NguoiDans
+                .FirstOrDefaultAsync(x =>
+                    x.MaCCCD == cccd);
 
+            if (nguoiDan == null)
+            {
+                return Json(null);
+            }
+
+            return Json(new
+            {
+                hoTen = nguoiDan.HoTen,
+                ngaySinh = nguoiDan.NgaySinh.HasValue
+    ? nguoiDan.NgaySinh.Value.ToString("dd/MM/yyyy")
+    : "",
+                gioiTinh = nguoiDan.GioiTinh
+            });
+        }
         // GET: ThuongTru/Create
         public IActionResult Create()
         {
-            ViewData["MaXaMoi"] = new SelectList(_context.XaMois.OrderBy(x => x.TenXaMoi), "MaXaMoi", "TenXaMoi");
-            ViewData["MaCCCD"] = new SelectList(_context.NguoiDans.OrderBy(n => n.HoTen), "MaCCCD", "HoTen");
-            return View();
-        }
+            var model = new ThuongTru
+            {
+                NgayDangKy = DateTime.Today
+            };
+            ViewBag.TinhList = new SelectList(
+        _context.TinhMois.OrderBy(x => x.TenTinhMoi),
+        "MaTinhMoi",
+        "TenTinhMoi"
+    );
 
+            ViewBag.MaXaMoi = new SelectList(
+                Enumerable.Empty<SelectListItem>()
+            );
+
+            ViewBag.MaCCCD = new SelectList(
+                _context.NguoiDans.OrderBy(x => x.HoTen),
+                "MaCCCD",
+                "HoTen"
+            );
+             return View(model);
+        }
+  
+        
         // POST: ThuongTru/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MaXaMoi,MaCCCD,DiaChi,NgayDangKy")] ThuongTru thuongTru)
+        public async Task<IActionResult> Create(
+    [Bind("MaXaMoi,MaCCCD,DiaChi,NgayDangKy")]
+    ThuongTru thuongTru)
         {
             if (ModelState.IsValid)
             {
-                // Kiểm tra trùng khóa chính trước khi thêm
-                if (ThuongTruExists(thuongTru.MaXaMoi, thuongTru.MaCCCD))
+                // Kiểm tra trùng khóa chính
+                if (ThuongTruExists(
+                    thuongTru.MaXaMoi,
+                    thuongTru.MaCCCD))
                 {
-                    ModelState.AddModelError("", "Dữ liệu thường trú cho người dân này tại xã đã tồn tại.");
+                    ModelState.AddModelError(
+                        "",
+                        "Dữ liệu thường trú cho người dân này đã tồn tại."
+                    );
                 }
                 else
                 {
-                    _context.Add(thuongTru);
+                    // =====================================
+                    // LƯU THƯỜNG TRÚ
+                    // =====================================
+
+                    _context.ThuongTrus.Add(thuongTru);
+
+                    // =====================================
+                    // SINH MÃ LỊCH SỬ
+                    // =====================================
+
+                    string maLichSu =
+                        "TT" +
+                        DateTime.Now.Ticks
+                            .ToString()
+                            .Substring(10);
+
+                    // =====================================
+                    // LƯU LỊCH SỬ ĐỊA CHỈ
+                    // =====================================
+
+                    var lichSu = new LichSuDiaChi
+                    {
+                        MaLichSuCuTru = maLichSu,
+
+                        MaCCCD = thuongTru.MaCCCD,
+
+                        DiaChiCu = null,
+
+                        DiaChiMoi = thuongTru.DiaChi,
+
+                        MaXaMoi = thuongTru.MaXaMoi,
+
+                        LoaiThayDoi = "Đăng ký thường trú",
+
+                        NgayHieuLuc = DateTime.Now,
+
+                        NguoiTao = User.Identity?.Name,
+
+                        NgayTao = DateTime.Now,
+
+                        GhiChu = "Tạo mới thường trú"
+                    };
+
+                    _context.LichSuDiaChis.Add(lichSu);
+
+                    // =====================================
+                    // SAVE
+                    // =====================================
+
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] =
+                        "Thêm thường trú thành công.";
+
                     return RedirectToAction(nameof(Index));
                 }
             }
-            ViewData["MaXaMoi"] = new SelectList(_context.XaMois, "MaXaMoi", "TenXaMoi", thuongTru.MaXaMoi);
-            ViewData["MaCCCD"] = new SelectList(_context.NguoiDans, "MaCCCD", "HoTen", thuongTru.MaCCCD);
+
+            ViewData["MaXaMoi"] =
+                new SelectList(
+                    _context.XaMois.OrderBy(x => x.TenXaMoi),
+                    "MaXaMoi",
+                    "TenXaMoi",
+                    thuongTru.MaXaMoi
+                );
+
+            ViewData["MaCCCD"] =
+                new SelectList(
+                    _context.NguoiDans.OrderBy(x => x.HoTen),
+                    "MaCCCD",
+                    "HoTen",
+                    thuongTru.MaCCCD
+                );
+
             return View(thuongTru);
         }
+
 
         // GET: ThuongTru/Edit
         public async Task<IActionResult> Edit(int? maXaMoi, string? maCCCD)
@@ -137,40 +254,128 @@ namespace QLSNT.Controllers
             var thuongTru = await _context.ThuongTrus
                 .Include(t => t.NguoiDan)
                 .Include(t => t.XaMoi)
-                .FirstOrDefaultAsync(x => x.MaXaMoi == maXaMoi && x.MaCCCD == maCCCD);
+                    .ThenInclude(x => x.TinhMoi)
+                .FirstOrDefaultAsync(x =>
+                    x.MaXaMoi == maXaMoi &&
+                    x.MaCCCD == maCCCD);
 
             if (thuongTru == null)
                 return NotFound();
 
+            // Danh sách tỉnh
+            ViewBag.TinhList = new SelectList(
+                _context.TinhMois.OrderBy(x => x.TenTinhMoi),
+                "MaTinhMoi",
+                "TenTinhMoi",
+                thuongTru.XaMoi?.MaTinh
+            );
+
+            // Danh sách xã thuộc tỉnh hiện tại
+            ViewBag.XaList = new SelectList(
+                _context.XaMois
+                    .Where(x => x.MaTinh == thuongTru.XaMoi.MaTinh)
+                    .OrderBy(x => x.TenXaMoi),
+                "MaXaMoi",
+                "TenXaMoi",
+                thuongTru.MaXaMoi
+            );
+
             return View(thuongTru);
         }
-
-        // POST: ThuongTru/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int maXaMoi, string maCCCD, [Bind("MaXaMoi,MaCCCD,DiaChi,NgayDangKy")] ThuongTru thuongTru)
+        public async Task<IActionResult> Edit(
+            int maXaMoi,
+            string maCCCD,
+            [Bind("MaXaMoi,MaCCCD,DiaChi,NgayDangKy")]
+    ThuongTru thuongTru)
         {
-            if (maXaMoi != thuongTru.MaXaMoi || maCCCD != thuongTru.MaCCCD)
+            if (maCCCD != thuongTru.MaCCCD)
                 return NotFound();
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                try
+                return View(thuongTru);
+            }
+
+            try
+            {
+                var oldThuongTru = await _context.ThuongTrus
+                    .Include(x => x.XaMoi)
+                        .ThenInclude(x => x.TinhMoi)
+                    .FirstOrDefaultAsync(x =>
+                        x.MaCCCD == maCCCD &&
+                        x.MaXaMoi == maXaMoi);
+
+                if (oldThuongTru == null)
+                    return NotFound();
+
+                bool thayDoiDiaChi =
+                    oldThuongTru.DiaChi != thuongTru.DiaChi ||
+                    oldThuongTru.MaXaMoi != thuongTru.MaXaMoi;
+
+                if (thayDoiDiaChi)
                 {
-                    _context.Update(thuongTru);
-                    await _context.SaveChangesAsync();
+                    var xaMoi = await _context.XaMois
+                        .Include(x => x.TinhMoi)
+                        .FirstOrDefaultAsync(x =>
+                            x.MaXaMoi == thuongTru.MaXaMoi);
+
+                    string diaChiCu =
+                        $"{oldThuongTru.DiaChi}, " +
+                        $"{oldThuongTru.XaMoi?.TenXaMoi}, " +
+                        $"{oldThuongTru.XaMoi?.TinhMoi?.TenTinhMoi}";
+
+                    string diaChiMoi =
+                        $"{thuongTru.DiaChi}, " +
+                        $"{xaMoi?.TenXaMoi}, " +
+                        $"{xaMoi?.TinhMoi?.TenTinhMoi}";
+
+                    var lichSu = new LichSuDiaChi
+                    {
+                        MaLichSuCuTru = Guid.NewGuid()
+                            .ToString("N")
+                            .Substring(0, 10),
+
+                        MaCCCD = thuongTru.MaCCCD,
+
+                        MaXaMoi = thuongTru.MaXaMoi,
+
+                        DiaChiCu = diaChiCu,
+
+                        DiaChiMoi = diaChiMoi,
+
+                        LoaiThayDoi = "Cập nhật thường trú",
+
+                        NgayHieuLuc = DateTime.Now,
+
+                        NgayTao = DateTime.Now,
+
+                        NguoiTao = User.Identity?.Name
+                    };
+
+                    _context.LichSuDiaChis.Add(lichSu);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ThuongTruExists(maXaMoi, maCCCD))
-                        return NotFound();
-                    else
-                        throw;
-                }
+
+                // Chỉ cập nhật các trường không phải khóa chính
+                oldThuongTru.DiaChi = thuongTru.DiaChi;
+                oldThuongTru.NgayDangKy = thuongTru.NgayDangKy;
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Cập nhật thường trú thành công";
+
                 return RedirectToAction(nameof(Index));
             }
-            return View(thuongTru);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ThuongTruExists(maXaMoi, maCCCD))
+                    return NotFound();
+
+                throw;
+            }
         }
+
 
         // GET: ThuongTru/Delete
         public async Task<IActionResult> Delete(int? maXaMoi, string? maCCCD)
@@ -219,5 +424,6 @@ namespace QLSNT.Controllers
         {
             return _context.ThuongTrus.Any(e => e.MaXaMoi == maXaMoi && e.MaCCCD == maCCCD);
         }
+        
     }
 }

@@ -1,4 +1,7 @@
-﻿@{
+﻿@using QLSNT.Areas.User.ViewModel
+@model DiaChiMoiViewModel
+
+@{
     ViewData["Title"] = "Tra cứu địa chỉ";
 }
 
@@ -6,7 +9,7 @@
 
     <div class="row justify-content-center">
 
-        <div class="col-md-8">
+        <div class="col-md-9">
 
             <div class="card shadow">
 
@@ -19,6 +22,8 @@
                 </div>
 
                 <div class="card-body">
+
+                    <!-- FORM -->
 
                     <form asp-action="TimKiem"
                           method="post">
@@ -47,6 +52,7 @@
 
                     </form>
 
+                    <!-- THÔNG BÁO -->
                     @if (ViewBag.Message != null)
                     {
                         <div class="alert alert-danger mt-3">
@@ -56,6 +62,66 @@
                         </div>
                     }
 
+                    <!-- KẾT QUẢ -->
+                    @if (Model != null && Model.DsXaMoi.Any())
+                    {
+                        <hr />
+
+                        <h4 class="text-success mb-3">
+                            Kết quả tra cứu
+                        </h4>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-striped">
+
+                                <thead class="table-primary">
+
+                                    <tr>
+                                        <th>Xã cũ</th>
+                                        <th>Huyện cũ</th>
+                                        <th>Tỉnh cũ</th>
+                                        <th>Xã mới</th>
+                                        <th>Tỉnh mới</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    @foreach (var item in Model.DsXaMoi)
+                                    {
+                                        <tr>
+
+                                            <td>
+                                                @item.TenXaCu
+                                            </td>
+
+                                            <td>
+                                                @item.TenHuyenCu
+                                            </td>
+
+                                            <td>
+                                                @item.TenTinhCu
+                                            </td>
+
+                                            <td class="fw-bold text-success">
+                                                @item.TenXaMoi
+                                            </td>
+
+                                            <td>
+                                                @item.TenTinhMoi
+                                            </td>
+
+                                        </tr>
+                                    }
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+                    }
                 </div>
 
             </div>

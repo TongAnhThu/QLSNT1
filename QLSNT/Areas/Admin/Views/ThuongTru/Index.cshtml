@@ -86,7 +86,26 @@
                                 <td><span class="badge bg-primary bg-opacity-10 text-primary">@item.XaMoi?.TenXaMoi</span></td>
                                 <td><code>@item.MaCCCD</code></td>
                                 <td class="fw-bold">@item.NguoiDan?.HoTen</td>
-                                <td class="text-truncate" style="max-width:200px">@item.DiaChi</td>
+                                <td style="max-width:250px">
+
+                                    <div>
+                                        @item.DiaChi
+                                    </div>
+
+                                    <small class="text-muted">
+
+                                        @item.XaMoi?.TenXaMoi
+
+                                        @if (item.XaMoi?.TinhMoi != null)
+                                        {
+                                            <span>
+                                                , @item.XaMoi.TinhMoi.TenTinhMoi
+                                            </span>
+                                        }
+
+                                    </small>
+
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group shadow-sm">
                                         <a asp-action="Details" asp-route-maXaMoi="@item.MaXaMoi" asp-route-maCCCD="@item.MaCCCD" class="btn btn-sm btn-outline-info" title="Xem"><i class="bi bi-eye"></i></a>
