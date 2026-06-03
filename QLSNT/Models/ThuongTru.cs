@@ -6,11 +6,10 @@ namespace QLSNT.Models
     public class ThuongTru
     {
         [Key]
-        public int Id { get; set; } // 🔥 PK mới
-
+        public int Id { get; set; } 
         public int MaXaMoi { get; set; }
 
-        public string MaCCCD { get; set; } // 🔥 FK mới
+        public string MaCCCD { get; set; } 
 
         public string? DiaChi { get; set; }
         public DateTime? NgayDangKy { get; set; }

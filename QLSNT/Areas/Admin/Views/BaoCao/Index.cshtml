@@ -1,0 +1,958 @@
+﻿
+@model QLSNT.Areas.Admin.ViewModel.BaoCaoThongKeVM
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Báo cáo thống kê";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet" />
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<div class="container-fluid">
+
+    <h2 class="mb-4">Báo cáo thống kê</h2>
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-primary shadow stat-card"
+                 onclick="showSection('xaCuSection')">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Tổng xã cũ</h6>
+                    <h2>@Model.TongXaCu</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-success shadow stat-card"
+                 onclick="showSection('xaMoiSection')">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Tổng xã mới</h6>
+                    <h2>@Model.TongXaMoi</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-warning shadow stat-card"
+                 onclick="showSection('congDanSection')">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Tổng công dân</h6>
+                    <h2>@Model.TongNguoiDan</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-danger shadow stat-card"
+                 onclick="showSection('thuongTruSection')">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Hồ sơ thường trú</h6>
+                    <h2>@Model.SoDiaChiDaChuyenDoi</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- THỐNG KÊ XÃ Cũ -->
+
+    <div id="xaCuSection"
+         class="dashboard-section"
+         style="display:none;">
+        <!-- Lọc -->
+        <div class="card shadow mt-3">
+
+            <div class="card-header bg-primary text-white">
+                Thống kê xã cũ
+            </div>
+            <div class="card-body">
+
+                <div class="row align-items-end mb-4">
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            Tỉnh cũ
+                        </label>
+
+                        <select id="ddlTinhCu"
+                                class="form-select">
+                            <option value="">
+                                Chọn tỉnh...
+                            </option>
+
+                            @foreach (var item in ViewBag.TinhCus)
+                            {
+                                <option value="@item.MaTinhCu">
+                                    @item.TenTinhCu
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            Huyện cũ
+                        </label>
+
+                        <select id="ddlHuyenCu"
+                                class="form-select">
+                            <option value="">
+                                Chọn huyện...
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            Xã cũ
+                        </label>
+
+                        <select id="ddlXaCu"
+                                class="form-select">
+                            <option value="">
+                                Chọn xã...
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <button id="btnLoc"
+                                class="btn btn-primary me-2">
+                            <i class="bi bi-search"></i>
+                            Lọc
+                        </button>
+
+                        <button id="btnReset"
+                                class="btn btn-secondary">
+                            Làm mới
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- Tabs -->
+
+            </div>
+            <div class="card-body">
+
+                <ul class="nav nav-tabs" id="xaCuTabs">
+
+                    <li class="nav-item">
+                        <button class="nav-link active"
+                                data-bs-toggle="tab"
+                                data-bs-target="#thongKeXaCuTab">
+                            Thống kê dân số
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#danhSachXaCuTab">
+                            Danh sách xã cũ
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content mt-3">
+
+                    <!-- TAB 1 -->
+
+                    <div class="tab-pane fade show active"
+                         id="thongKeXaCuTab">
+
+                        <table id="tblThongKeXaCu"
+                               class="table table-bordered">
+
+                            <thead>
+                                <tr>
+                                    <th>Tỉnh cũ</th>
+                                    <th>Số Huyện</th>
+                                    <th>Số xã</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.ThongKeXaCuTheoTinh)
+                                {
+                                    <tr>
+                                        <td>@item.TenTinhCu</td>
+                                        <td>@item.SoHuyen</td>
+                                        <td>@item.SoXa</td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                    
+
+                    <!-- TAB 2 -->
+                    <div class="tab-pane fade"
+                         id="danhSachXaCuTab">
+
+                        <table id="tblXaCu"
+                               class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên xã cũ</th>
+                                    <th>Huyện cũ</th>
+                                    <th>Tỉnh cũ</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @{
+                                    int stt2 = 1;
+                                }
+
+                                @foreach (var item in Model.DanhSachXaCu)
+                                {
+                                    <tr>
+                                        <td>@stt2</td>
+                                        <td>@item.TenXaCu</td>
+                                        <td>@item.TenHuyenCu</td>
+                                        <td>@item.TenTinhCu</td>
+                                    </tr>
+
+                                    stt2++;
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="xaMoiSection"
+         class="dashboard-section"
+         style="display:none;">
+
+        <div class="card shadow mt-3">
+
+            <div class="card-header bg-success text-white">
+                Thống kê xã mới
+            </div>
+
+            <div class="card-body">
+
+                <!-- Bộ lọc -->
+                <div class="row align-items-end mb-4">
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">
+                            Tỉnh mới
+                        </label>
+
+                        <select id="ddlTinhMoi"
+                                class="form-select">
+                            <option value="">Chọn tỉnh...</option>
+
+                            @foreach (var item in ViewBag.TinhMois)
+                            {
+                                <option value="@item.MaTinhMoi">
+                                    @item.TenTinhMoi
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">
+                            Xã mới
+                        </label>
+
+                        <select id="ddlXaMoi"
+                                class="form-select">
+                            <option value="">Chọn xã...</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <button id="btnLocXaMoi"
+                                class="btn btn-success me-2">
+                            Lọc
+                        </button>
+
+                        <button id="btnResetXaMoi"
+                                class="btn btn-secondary">
+                            Làm mới
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <!-- Tabs -->
+                <ul class="nav nav-tabs" id="xaMoiTabs">
+
+                    <li class="nav-item">
+                        <button class="nav-link active"
+                                data-bs-toggle="tab"
+                                data-bs-target="#thongKeXaMoiTab">
+                            Thống kê dân số
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#danhSachXaMoiTab">
+                            Danh sách xã mới
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content mt-3">
+
+                    <!-- TAB 1 -->
+                    <div class="tab-pane fade show active"
+                         id="thongKeXaMoiTab">
+
+                        <table id="tblXaMoiThongKe"
+                               class="table table-bordered">
+
+                            <thead>
+                                <tr>
+                                    <th>Tên xã</th>
+                                    <th>Số dân</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var item in Model.DanTheoXa)
+                                {
+                                    <tr>
+                                        <td>@item.TenXa</td>
+                                        <td>@item.SoLuongDan</td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <!-- TAB 2 -->
+                    <div class="tab-pane fade"
+                         id="danhSachXaMoiTab">
+
+                        <table id="tblXaMoi"
+                               class="table table-bordered table-striped">
+
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên xã mới</th>
+                                    <th>Tỉnh mới</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @{
+                                    int sttMoi = 1;
+                                }
+
+                                @foreach (var item in Model.DanhSachXaMoi)
+                                {
+                                    <tr>
+                                        <td>@sttMoi</td>
+                                        <td>@item.TenXaMoi</td>
+                                        <td>@item.TenTinhMoi</td>
+                                    </tr>
+
+                                    sttMoi++;
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DANH SÁCH CÔNG DÂN -->
+    
+    <div id="congDanSection"
+         class="dashboard-section"
+         style="display:none;">
+
+        <div class="card shadow mt-3">
+
+            <div class="card-header bg-warning">
+                Danh sách công dân
+            </div>
+
+            <div class="card-body">
+
+                <!-- Tìm kiếm -->
+                <div class="row mb-4">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-bold">
+                            Tìm công dân
+                        </label>
+
+                        <input type="text"
+                               id="txtTimCongDan"
+                               class="form-control"
+                               placeholder="Nhập CCCD, họ tên, địa chỉ, xã, tỉnh..." />
+
+                    </div>
+
+                </div>
+
+                <!-- Bảng -->
+                <table id="tblCongDan"
+                       class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>CCCD</th>
+                            <th>Họ tên</th>
+                            <th>Địa chỉ mới</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.DiaChiChuyenDois)
+                        {
+                            <tr>
+                                <td>@item.CCCD</td>
+
+                                <td>@item.HoTen</td>
+
+                                <td>
+                                    @item.DiaChiMoi,
+                                    @item.TenXaMoi,
+                                    @item.TenTinhMoi
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HỒ SƠ THƯỜNG TRÚ -->
+    <div id="thuongTruSection"
+         class="dashboard-section"
+         style="display:none;">
+
+        <div class="card shadow mt-3">
+
+            <div class="card-header bg-danger text-white">
+                Hồ sơ thường trú
+            </div>
+
+            <div class="card-body">
+
+                <!-- Tìm kiếm -->
+                <div class="row mb-4">
+
+                    <div class="col-md-6">
+
+                        <label class="form-label fw-bold">
+                            Tìm hồ sơ thường trú
+                        </label>
+
+                        <input type="text"
+                               id="txtTimThuongTru"
+                               class="form-control"
+                               placeholder="Nhập CCCD, họ tên, địa chỉ, xã, tỉnh..." />
+
+                    </div>
+
+                </div>
+
+                <table id="tblThuongTru"
+                       class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>CCCD</th>
+                            <th>Họ tên</th>
+                            <th>Địa chỉ mới</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in Model.DiaChiChuyenDois)
+                        {
+                            <tr>
+                                <td>@item.CCCD</td>
+
+                                <td>@item.HoTen</td>
+
+                                <td>
+                                    @item.DiaChiMoi,
+                                    @item.TenXaMoi,
+                                    @item.TenTinhMoi
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+    .stat-card {
+        cursor: pointer;
+        transition: .3s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+</style>
+
+
+<script>
+    function showSection(sectionId)
+    {
+        console.log("Click:", sectionId);
+
+        document.querySelectorAll('.dashboard-section')
+            .forEach(function(item) {
+                item.style.display = 'none';
+            });
+
+        const section = document.getElementById(sectionId);
+
+        if(section)
+        {
+            section.style.display = 'block';
+        }
+    }
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        document.querySelectorAll('#xaCuTabs button').forEach(btn => {
+
+            btn.addEventListener('click', function () {
+
+                document.querySelectorAll('#xaCuSection .tab-pane')
+                    .forEach(x => {
+                        x.classList.remove('show', 'active');
+                    });
+
+                document.querySelectorAll('#xaCuTabs .nav-link')
+                    .forEach(x => {
+                        x.classList.remove('active');
+                    });
+
+                this.classList.add('active');
+
+                const target = document.querySelector(
+                    this.getAttribute('data-bs-target')
+                );
+
+                target.classList.add('show', 'active');
+            });
+
+        });
+
+    });
+</script>
+
+<script>
+          
+
+    $(document).ready(function () {
+
+        $('#ddlTinhCu').select2({
+            placeholder: "Tìm tỉnh cũ..."
+        });
+
+        $('#ddlHuyenCu').select2({
+            placeholder: "Tìm huyện cũ..."
+        });
+
+        $('#ddlXaCu').select2({
+            placeholder: "Tìm xã cũ..."
+        });
+
+        $('#ddlTinhCu').change(function () {
+
+            let maTinh = $(this).val();
+
+            $.get('/Admin/BaoCao/GetHuyenByTinh',
+                { maTinh: maTinh },
+                function (data) {
+
+                    $('#ddlHuyenCu').empty();
+
+                    $('#ddlHuyenCu')
+                        .append('<option value="">Tìm huyện cũ...</option>');
+
+                    $.each(data, function (i, item) {
+
+                        $('#ddlHuyenCu').append(
+                            `<option value="${item.id}">
+                                ${item.text}
+                            </option>`
+                        );
+
+                    });
+
+                });
+
+        });
+
+        $('#ddlHuyenCu').change(function () {
+
+            let maHuyen = $(this).val();
+
+            $.get('/Admin/BaoCao/GetXaByHuyen',
+                { maHuyen: maHuyen },
+                function (data) {
+
+                    $('#ddlXaCu').empty();
+
+                    $('#ddlXaCu')
+                        .append('<option value="">Tìm xã cũ...</option>');
+
+                    $.each(data, function (i, item) {
+
+                        $('#ddlXaCu').append(
+                            `<option value="${item.id}">
+                                ${item.text}
+                            </option>`
+                        );
+
+                    });
+
+                });
+
+        });
+
+    });
+        $('#ddlTinhCu').change(function () {
+
+        let maTinh = $(this).val();
+
+        console.log("Mã tỉnh:", maTinh);
+
+        $.get('/Admin/BaoCao/GetHuyenByTinh',
+            { maTinh: maTinh },
+            function (data) {
+
+                console.log(data);
+
+            });
+
+    });
+         
+
+    
+</script>
+<script>
+            $('#btnLoc').click(function () {
+
+        let tenTinh =
+            $('#ddlTinhCu option:selected').text().trim();
+
+        // TAB 1
+        $('#tblThongKeXaCu tbody tr').each(function () {
+
+            let tinh =
+                $(this).find('td:eq(0)').text().trim();
+
+            let show = true;
+
+            if ($('#ddlTinhCu').val() &&
+                tinh !== tenTinh)
+            {
+                show = false;
+            }
+
+            $(this).toggle(show);
+
+        });
+
+        // TAB 2
+        $('#tblXaCu tbody tr').each(function () {
+
+            let xa =
+                $(this).find('td:eq(1)').text().trim();
+
+            let huyen =
+                $(this).find('td:eq(2)').text().trim();
+
+            let tinh =
+                $(this).find('td:eq(3)').text().trim();
+
+            let show = true;
+
+            if ($('#ddlTinhCu').val() &&
+                tinh !== tenTinh)
+            {
+                show = false;
+            }
+
+            $(this).toggle(show);
+
+        });
+
+    });
+
+    $('#btnReset').click(function () {
+
+        $('#ddlTinhCu').val('').trigger('change');
+
+        $('#ddlHuyenCu').empty()
+            .append('<option value="">Chọn huyện...</option>');
+
+        $('#ddlXaCu').empty()
+            .append('<option value="">Chọn xã...</option>');
+
+        $('#tblXaCu tbody tr').show();
+
+    });
+
+</script>
+
+<!--Lọc xã mới -->
+<script>
+    $(document).ready(function () {
+
+        $('#ddlTinhMoi').change(function () {
+
+            let maTinh = $(this).val();
+
+            $.get('/Admin/BaoCao/GetXaMoiByTinh',
+                { maTinh: maTinh },
+                function (data) {
+
+                    $('#ddlXaMoi').empty();
+
+                    $('#ddlXaMoi')
+                        .append('<option value="">Chọn xã...</option>');
+
+                    $.each(data, function (i, item) {
+
+                        $('#ddlXaMoi').append(
+                            `<option value="${item.id}">
+                                ${item.text}
+                            </option>`
+                        );
+
+                    });
+
+                });
+
+        });
+
+        $('#btnLocXaMoi').click(function () {
+
+            let tenXa =
+                $('#ddlXaMoi option:selected').text().trim();
+
+            $('#tblXaMoi tbody tr').each(function () {
+
+                let xa =
+                    $(this).find('td:eq(1)').text().trim();
+
+                let show = true;
+
+                if ($('#ddlXaMoi').val() &&
+                    xa !== tenXa) {
+                    show = false;
+                }
+
+                $(this).toggle(show);
+
+            });
+
+        });
+
+        $('#btnResetXaMoi').click(function () {
+
+            $('#ddlTinhMoi').val('');
+
+            $('#ddlXaMoi')
+                .empty()
+                .append('<option value="">Chọn xã...</option>');
+
+            $('#tblXaMoi tbody tr').show();
+
+        });
+
+    });</script>
+
+
+<script>
+    document.querySelectorAll('#xaMoiTabs button')
+        .forEach(btn => {
+
+            btn.addEventListener('click', function () {
+
+                document.querySelectorAll('#xaMoiSection .tab-pane')
+                    .forEach(x => {
+                        x.classList.remove('show', 'active');
+                    });
+
+                document.querySelectorAll('#xaMoiTabs .nav-link')
+                    .forEach(x => {
+                        x.classList.remove('active');
+                    });
+
+                this.classList.add('active');
+
+                document.querySelector(
+                    this.getAttribute('data-bs-target')
+                ).classList.add('show', 'active');
+
+            });
+
+        });</script>
+<!-- DANH SÁCH CÔNG DÂN -->
+<script>
+
+    $(document).ready(function () {
+
+        $('#txtTimCongDan').on('keyup', function () {
+
+            let keyword = $(this)
+                .val()
+                .toLowerCase()
+                .trim();
+
+            $('#tblCongDan tbody tr').each(function () {
+
+                let cccd =
+                    $(this).find('td:eq(0)')
+                           .text()
+                           .toLowerCase();
+
+                let hoTen =
+                    $(this).find('td:eq(1)')
+                           .text()
+                           .toLowerCase();
+
+                let diaChi =
+                    $(this).find('td:eq(2)')
+                           .text()
+                           .toLowerCase();
+
+                let show =
+                    cccd.includes(keyword) ||
+                    hoTen.includes(keyword) ||
+                    diaChi.includes(keyword);
+
+                $(this).toggle(show);
+
+            });
+
+        });
+
+    });
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#txtTimThuongTru').on('keyup', function () {
+
+            let keyword = $(this)
+                .val()
+                .toLowerCase()
+                .trim();
+
+            $('#tblThuongTru tbody tr').each(function () {
+
+                let cccd =
+                    $(this).find('td:eq(0)')
+                           .text()
+                           .toLowerCase();
+
+                let hoTen =
+                    $(this).find('td:eq(1)')
+                           .text()
+                           .toLowerCase();
+
+                let diaChi =
+                    $(this).find('td:eq(2)')
+                           .text()
+                           .toLowerCase();
+
+                let show =
+                    cccd.includes(keyword) ||
+                    hoTen.includes(keyword) ||
+                    diaChi.includes(keyword);
+
+                $(this).toggle(show);
+
+            });
+
+        });
+
+    });
+
+</script>
+    @section Scripts {     
+}
+
