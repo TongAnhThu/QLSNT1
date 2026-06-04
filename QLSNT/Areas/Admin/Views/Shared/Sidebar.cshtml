@@ -90,9 +90,42 @@
            asp-area="Admin"
            asp-controller="BaoCao"
            asp-action="Index">
-            Báo cáo thống kê
+            📊 Báo cáo thống kê
         </a>
-    
+        <!-- Quản trị hệ thống -->
+
+        <div class="section-title">
+            <a class="nav-link text-white"
+               data-bs-toggle="collapse"
+               href="#heThongMenu">
+                ⚙️ Hệ thống
+            </a>
+        </div>
+
+        <div class="collapse" id="heThongMenu">
+
+            <a class="nav-link ms-3"
+               asp-area="Admin"
+               asp-controller="UserManagement"
+               asp-action="Index">
+                👥 Quản lý tài khoản
+            </a>
+
+            <a class="nav-link ms-3"
+               asp-area="Admin"
+               asp-controller="UserManagement"
+               asp-action="Roles">
+                🔐 Quản lý Role
+            </a>
+
+            <a class="nav-link ms-3"
+               asp-area="Admin"
+               asp-controller="CaiDat"
+               asp-action="Index">
+                ⚙️ Cài đặt hệ thống
+            </a>
+
+        </div>
     
     </div>
 

@@ -1,0 +1,182 @@
+﻿@model IEnumerable<QLSNT.Areas.Admin.ViewModel.UserManagementVM>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Quản lý tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                Quản lý tài khoản
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>CCCD</th>
+                        <th>Họ tên</th>
+                        <th>Role</th>
+                        <th>Trạng thái</th>
+                        <th width="350">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                <strong>@user.CCCD</strong>
+                            </td>
+
+                            <td>
+                                @(string.IsNullOrWhiteSpace(user.HoTen)
+                                    ? "Chưa cập nhật"
+                                    : user.HoTen)
+                            </td>
+
+                            <td>
+                                <span class="badge bg-primary">
+                                    @user.Role
+                                </span>
+                            </td>
+
+                            <td>
+                                @if (user.IsLocked)
+                                {
+                                    <span class="badge bg-danger">
+                                        Đã khóa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">
+                                        Hoạt động
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+
+                                <a asp-area="Admin"
+                                   asp-controller="UserManagement"
+                                   asp-action="Details"
+                                   asp-route-id="@user.UserId"
+                                   class="btn btn-info btn-sm">
+                                    Chi tiết
+                                </a>
+
+                                @if (!user.IsLocked)
+                                {
+                                    <form asp-action="LockUser"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@user.UserId" />
+
+                                        <button type="submit"
+                                                class="btn btn-warning btn-sm"
+                                                onclick="return confirm('Khóa tài khoản này?')">
+                                            Khóa
+                                        </button>
+
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="UnlockUser"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@user.UserId" />
+
+                                        <button type="submit"
+                                                class="btn btn-success btn-sm">
+                                            Mở khóa
+                                        </button>
+
+                                    </form>
+                                }
+
+                                <form asp-action="ResetPassword"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@user.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-secondary btn-sm"
+                                            onclick="return confirm('Reset mật khẩu về 123456@Aa?')">
+                                        Reset MK
+                                    </button>
+
+                                </form>
+
+                                <form asp-action="Delete"
+                                      method="post"
+                                      class="d-inline">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@user.UserId" />
+
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Xóa tài khoản này?')">
+                                        Xóa
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

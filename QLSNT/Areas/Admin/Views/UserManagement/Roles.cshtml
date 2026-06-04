@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityRole>
+
+@{
+
+    ViewData["Title"] = "Quản lý Role";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h4 class="mb-0">
+                Quản lý Role
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="CreateRole"
+                  method="post"
+                  class="mb-4">
+
+                @Html.AntiForgeryToken()
+
+                <div class="row">
+
+                    <div class="col-md-9">
+
+                        <input type="text"
+                               name="roleName"
+                               class="form-control"
+                               placeholder="Tên Role..." />
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <button class="btn btn-primary w-100">
+                            Thêm Role
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <table class="table table-bordered">
+
+                <thead class="table-dark">
+
+                    <tr>
+                        <th>Tên Role</th>
+                        <th width="150">
+                            Thao tác
+                        </th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @foreach (var role in Model)
+                    {
+                        <tr>
+
+                            <td>@role.Name</td>
+
+                            <td>
+
+                                <form asp-action="DeleteRole"
+                                      method="post">
+
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@role.Id" />
+
+                                    <button class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Xóa role này?')">
+                                        Xóa
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>

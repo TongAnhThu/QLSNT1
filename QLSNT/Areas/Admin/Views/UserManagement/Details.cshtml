@@ -1,0 +1,122 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+
+@{
+    ViewData["Title"] = "Chi tiết tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    var roles = ViewBag.Roles as IList<string>;
+
+    var allRoles =
+        ViewBag.AllRoles as List<Microsoft.AspNetCore.Identity.IdentityRole>;
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-info text-white">
+
+            <h4 class="mb-0">
+                Chi tiết tài khoản
+            </h4>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+
+                <div class="col-md-6">
+
+                    <label>Email</label>
+
+                    <input class="form-control"
+                           value="@Model.Email"
+                           readonly />
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <label>UserName</label>
+
+                    <input class="form-control"
+                           value="@Model.UserName"
+                           readonly />
+
+                </div>
+
+            </div>
+
+            <div class="mb-4">
+
+                <label>Role hiện tại</label>
+
+                <div>
+
+                    @foreach (var role in roles)
+                    {
+                        <span class="badge bg-primary me-1">
+                            @role
+                        </span>
+                    }
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <h5>Gán quyền</h5>
+
+            <form asp-action="AssignRole"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="userId"
+                       value="@Model.Id" />
+
+                <div class="row">
+
+                    <div class="col-md-8">
+
+                        <select class="form-select"
+                                name="roleName">
+
+                            @foreach (var role in allRoles)
+                            {
+                                <option value="@role.Name">
+                                    @role.Name
+                                </option>
+                            }
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <button class="btn btn-success w-100">
+                            Cập nhật Role
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            <hr />
+
+            <a asp-action="Index"
+               class="btn btn-secondary">
+                Quay lại
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
