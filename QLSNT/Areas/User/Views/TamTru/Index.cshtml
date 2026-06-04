@@ -1,0 +1,152 @@
+﻿@model IEnumerable<QLSNT.Models.TamTru>
+
+@{
+    ViewData["Title"] = "Thông tin tạm trú";
+    Layout = "~/Areas/User/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/User/ThongTinCaNhan.css"
+          asp-append-version="true" />
+}
+
+<div class="container-fluid mt-4 profile-container">
+
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="page-title">
+                <i class="fas fa-map-marker-alt text-success me-2"></i>
+                Thông Tin Tạm Trú
+            </h2>
+            <p class="text-muted mb-0">
+                Danh sách các nơi tạm trú của công dân
+            </p>
+        </div>
+
+        <span class="badge bg-success rounded-pill px-3 py-2">
+            @Model.Count() bản ghi
+        </span>
+    </div>
+
+    <div class="card custom-card">
+
+        <div class="card-header-gradient d-flex align-items-center">
+            <div class="section-icon section-icon-green">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+
+            <h5 class="mb-0 fw-bold">
+                Danh sách tạm trú
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table custom-table align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Địa chỉ</th>
+                                <th>Ngày đăng ký</th>
+                                <th>Thời hạn</th>
+                                <th>Đến ngày</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in Model)
+                            {
+                                var isExpired =
+                                item.DenNgay != null &&
+                                item.DenNgay < DateTime.Now;
+
+                                <tr>
+
+                                    <td>
+                                        <strong>
+                                            @item.DiaChi,   @item.XaMoi?.TenXaMoi,
+                                            @item.XaMoi?.TinhMoi?.TenTinhMoi
+                                        </strong>
+
+                                      
+
+                                     
+                                         
+                                      
+                                    </td>
+
+                                    <td>
+                                        @item.NgayDangKy?.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td>
+                                        @item.ThoiHan
+                                    </td>
+
+                                    <td>
+                                        @(item.DenNgay?.ToString("dd/MM/yyyy")
+                                            ?? "Không xác định")
+                                    </td>
+
+                                    <td>
+
+                                        @if (item.DenNgay == null)
+                                        {
+                                            <span class="status-badge status-badge-info">
+                                                Vô thời hạn
+                                            </span>
+                                        }
+                                        else if (isExpired)
+                                        {
+                                            <span class="status-badge status-badge-warning">
+                                                Hết hạn
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge status-badge-success">
+                                                Còn hiệu lực
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="text-center p-5">
+
+                    <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+
+                    <h5>
+                        Chưa có thông tin tạm trú
+                    </h5>
+
+                    <p class="text-muted">
+                        Hiện chưa có địa điểm tạm trú nào được ghi nhận.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+
+</div>

@@ -11,5 +11,9 @@ namespace QLSNT.Areas.User.ViewModel
 
         // Danh sách các bản ghi tạm trú còn hiệu lực
         public IEnumerable<TamTru> DanhSachTamTru { get; set; } = new List<TamTru>();
+        public string? DiaChiMoi { get; set; }
+
+        // Tổng số nơi tạm trú
+        public int SoLuongTamTru { get; set; }
     }
 }

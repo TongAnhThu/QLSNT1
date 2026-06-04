@@ -1,0 +1,161 @@
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+<p>Culture: @CultureInfo.CurrentUICulture.Name</p>
+
+@{
+    ViewData["Title"] = "Cài đặt";
+}
+
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/User/ThongTinCaNhan.css"
+          asp-append-version="true" />
+}
+<div class="container mt-4 settings-container">
+
+    <div class="settings-card">
+
+        <div class="settings-header">
+            <h4>
+                <i class="fas fa-cog me-2"></i>
+                Cài đặt tài khoản
+            </h4>
+
+            <p>Tùy chỉnh tài khoản và giao diện hệ thống</p>
+        </div>
+
+        <div class="p-4">
+
+            <!-- Tài khoản -->
+            <div class="settings-section-title">
+                <div class="settings-icon">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                Tài khoản
+            </div>
+
+            <div class="settings-item">
+                <a asp-controller="CaiDat"
+                   asp-action="DoiMatKhau">
+
+                    <span>
+                        <i class="fas fa-key me-2"></i>
+                        Đổi mật khẩu
+                    </span>
+
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+
+            <hr />
+
+            <!-- Giao diện -->
+            <div class="settings-section-title">
+                <div class="settings-icon">
+                    <i class="fas fa-moon"></i>
+                </div>
+                Giao diện
+            </div>
+
+            <div class="theme-box">
+
+                <div class="form-check form-switch">
+
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="themeSwitch">
+
+                    <label class="form-check-label">
+                        Chế độ tối
+                    </label>
+
+                </div>
+
+            </div>
+
+            <hr />
+
+            <!-- Ngôn ngữ -->
+
+            <div class="card mt-3">
+                <div class="card-body">
+
+                    <h5>Ngôn ngữ</h5>
+
+                    <form asp-area="User"
+                          asp-controller="CaiDat"
+                          asp-action="DoiNgonNgu"
+                          method="post">
+
+                        <select name="culture" class="form-select">
+
+                            <option value="vi-VN">
+                                🇻🇳 Tiếng Việt
+                            </option>
+
+                            <option value="en-US">
+                                🇺🇸 English
+                            </option>
+
+                        </select>
+
+                        <button type="submit"
+                                class="btn btn-primary mt-2">
+                            Lưu
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+           
+        </div>
+
+    </div>
+
+</div>
+<!-- Giao diện sáng tối -->
+@section Scripts {
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const themeSwitch =
+                document.getElementById("themeSwitch");
+
+            if (!themeSwitch) return;
+
+            const theme =
+                localStorage.getItem("theme");
+
+            if (theme === "dark") {
+                document.body.classList.add("dark-mode");
+                themeSwitch.checked = true;
+            }
+
+            themeSwitch.addEventListener("change", function () {
+
+                if (this.checked) {
+
+                    document.body.classList.add("dark-mode");
+                    localStorage.setItem("theme", "dark");
+
+                } else {
+
+                    document.body.classList.remove("dark-mode");
+                    localStorage.setItem("theme", "light");
+                }
+
+            });
+
+        });
+
+    </script>
+
+}
+
+
+

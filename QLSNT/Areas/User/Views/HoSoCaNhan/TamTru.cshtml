@@ -15,7 +15,7 @@
             @foreach (var tt in Model)
             {
                 <tr>
-                    <td>@tt.DiaChi</td>
+                    <td>@tt.DiaChi,@tt.XaMoi?.TenXaMoi,@tt.XaMoi?.TinhMoi.TenTinhMoi</td>
                     <td>@tt.NgayDangKy</td>
                     <td>@tt.ThoiHan</td>
                 </tr>

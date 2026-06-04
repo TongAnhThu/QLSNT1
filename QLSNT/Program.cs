@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Areas.Identity.Pages.Account;
 using QLSNT.Data;
 using QLSNT.Repositories;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,18 @@ builder.Services.AddScoped<IQuanHeChuHoRepository, EFQuanHeChuHoRepository>();
 builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
+
+// =======================
+// Chuyển đổi TA- VN
+// =======================
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});
+
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
 var app = builder.Build();
 
 // =======================
@@ -72,7 +86,25 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+var supportedCultures = new[]
+{
+    new CultureInfo("vi-VN"),
+    new CultureInfo("en-US")
+};
 
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("vi-VN"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
+
+localizationOptions.RequestCultureProviders.Clear();
+
+localizationOptions.RequestCultureProviders.Add(
+    new CookieRequestCultureProvider());
+
+app.UseRequestLocalization(localizationOptions);
 app.UseAuthentication();   // Bắt buộc để Identity hoạt động
 app.UseAuthorization();
 

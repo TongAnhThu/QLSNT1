@@ -64,16 +64,14 @@ namespace QLSNT.Repositories
         }
         public async Task<ThuongTru?> GetThuongTruHienTaiByNguoiDanIdAsync(string maNguoiDan)
         {
-            // Tuỳ cấu trúc bảng ThuongTru của chủ nhân:
-            // 1) Nếu có cột TrangThai, IsHienTai:
-            //    return await _db.ThuongTrus
-            //        .FirstOrDefaultAsync(t => t.MaNguoiDan == maNguoiDan && t.TrangThai == "HienTai");
-
-            // 2) Nếu dùng NgayKetThuc == null là còn hiệu lực:
             return await _context.ThuongTrus
-                .Where(t => t.MaCCCD == maNguoiDan)
-                .OrderByDescending(t => t.NgayDangKy) // nếu có NgayBatDau
-                .FirstOrDefaultAsync();
+            .Include(x => x.XaMoi)
+            .ThenInclude(x => x.TinhMoi)
+            .Include(x => x.NguoiDan)
+            .Where(x => x.MaCCCD == maNguoiDan)
+            .OrderByDescending(x => x.NgayDangKy)
+            .FirstOrDefaultAsync();
         }
+
     }
 }

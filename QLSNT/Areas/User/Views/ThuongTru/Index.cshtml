@@ -1,0 +1,92 @@
+﻿@model QLSNT.Models.ThuongTru
+
+@{
+    ViewData["Title"] = "Thông tin thường trú";
+    Layout = "~/Areas/User/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/User/ThongTinCaNhan.css"
+          asp-append-version="true" />
+}
+
+<div class="container-fluid mt-4 profile-container">
+
+  
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="page-title">
+                <i class="fas fa-home text-primary me-2"></i>
+                Thông Tin Thường Trú
+            </h2>
+            <p class="text-muted mb-0">
+                Thông tin cư trú chính thức của công dân
+            </p>
+        </div>
+    </div>
+
+    <div class="card custom-card">
+
+        <div class="card-header-gradient d-flex align-items-center">
+            <div class="section-icon">
+                <i class="fas fa-house-user"></i>
+            </div>
+            <h5 class="mb-0 fw-bold">
+                Hồ sơ thường trú
+            </h5>
+        </div>
+
+        <div class="card-body p-4">
+
+            @if (Model == null)
+            {
+                <div class="alert alert-warning">
+                    Chưa có thông tin thường trú.
+                </div>
+            }
+            else
+            {
+                <div class="info-group">
+                    <div class="info-label">
+                        Địa chỉ thường trú
+                    </div>
+                    <div class="info-value text-primary">
+                        @Model.DiaChi
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        Xã mới
+                    </div>
+                    <div class="info-value">
+                        @Model.XaMoi?.TenXaMoi
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        Tỉnh mới
+                    </div>
+                    <div class="info-value">
+                        @Model.XaMoi?.TinhMoi?.TenTinhMoi
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">
+                        Ngày đăng ký
+                    </div>
+                    <div class="info-value">
+                        @Model.NgayDangKy?.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+            }
+
+        </div>
+
+    </div>
+   
+
+</div>

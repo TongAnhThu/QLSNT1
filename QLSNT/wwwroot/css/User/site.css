@@ -1,0 +1,466 @@
+﻿/* ===================================
+   DARK MODE TOÀN HỆ THỐNG
+=================================== */
+
+body.dark-mode {
+    background: #121212;
+    color: #ffffff;
+}
+
+    /* ===================================
+   NAVBAR
+=================================== */
+
+    body.dark-mode .navbar {
+        background: #1a1a1a !important;
+        border-bottom: 1px solid #333;
+    }
+
+        body.dark-mode .navbar a,
+        body.dark-mode .navbar-brand,
+        body.dark-mode .navbar .nav-link {
+            color: #ffffff !important;
+        }
+
+    /* ===================================
+   SIDEBAR
+=================================== */
+
+    body.dark-mode .sidebar {
+        background: #1e1e1e !important;
+        border-right: 1px solid #333;
+    }
+
+        body.dark-mode .sidebar a {
+            color: #e5e7eb !important;
+        }
+
+            body.dark-mode .sidebar a:hover {
+                background: #2a2a2a;
+                color: #ffffff !important;
+            }
+
+    /* ===================================
+   CARD
+=================================== */
+
+    body.dark-mode .card,
+    body.dark-mode .custom-card,
+    body.dark-mode .settings-card {
+        background: #1e1e1e;
+        color: #ffffff;
+        border: 1px solid #333;
+    }
+
+    body.dark-mode .card-header,
+    body.dark-mode .card-header-gradient {
+        background: #252525 !important;
+        color: #ffffff !important;
+        border-bottom: 1px solid #444;
+    }
+
+    body.dark-mode .card-body {
+        color: #ffffff;
+    }
+
+    body.dark-mode .custom-card:hover {
+        box-shadow: 0 10px 25px rgba(0,0,0,.4);
+    }
+
+    /* ===================================
+   TIÊU ĐỀ
+=================================== */
+
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode h4,
+    body.dark-mode h5,
+    body.dark-mode h6,
+    body.dark-mode .page-title,
+    body.dark-mode .settings-section-title {
+        color: #ffffff !important;
+    }
+
+    /* ===================================
+   ICON
+=================================== */
+
+    body.dark-mode .section-icon,
+    body.dark-mode .settings-icon {
+        background: #374151 !important;
+        color: #60a5fa !important;
+    }
+
+    body.dark-mode .section-icon-green {
+        background: #1f3d2f !important;
+        color: #34d399 !important;
+    }
+
+    /* ===================================
+   THÔNG TIN CÁ NHÂN
+=================================== */
+
+    body.dark-mode .info-label {
+        color: #94a3b8 !important;
+    }
+
+    body.dark-mode .info-value {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .info-group {
+        border-bottom: 1px dashed #444;
+    }
+
+        body.dark-mode .info-group:hover {
+            background: #2a2a2a;
+        }
+
+    /* ===================================
+   FORM
+=================================== */
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select,
+    body.dark-mode textarea,
+    body.dark-mode .language-select {
+        background: #2b2b2b !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus,
+        body.dark-mode textarea:focus {
+            background: #333 !important;
+            color: #ffffff !important;
+            border-color: #4dabf7 !important;
+            box-shadow: none;
+        }
+
+    body.dark-mode ::placeholder {
+        color: #b0b0b0 !important;
+    }
+
+    /* ===================================
+   TABLE
+=================================== */
+
+    body.dark-mode table,
+    body.dark-mode .table {
+        color: #ffffff !important;
+    }
+
+        body.dark-mode .table th,
+        body.dark-mode .custom-table th {
+            background: #252525 !important;
+            color: #ffffff !important;
+            border-color: #444 !important;
+        }
+
+        body.dark-mode .table td,
+        body.dark-mode .custom-table td {
+            background: #1e1e1e;
+            color: #e5e7eb !important;
+            border-color: #444 !important;
+        }
+
+    body.dark-mode .table-hover tbody tr:hover td,
+    body.dark-mode .custom-table tr:hover td {
+        background: #2a2a2a !important;
+    }
+
+    /* ===================================
+   SETTINGS
+=================================== */
+
+    body.dark-mode .settings-item {
+        border-color: #444;
+    }
+
+        body.dark-mode .settings-item:hover {
+            background: #2a2a2a;
+        }
+
+        body.dark-mode .settings-item a {
+            color: #ffffff;
+        }
+
+    body.dark-mode .theme-box {
+        background: #252525;
+    }
+
+    /* ===================================
+   BADGE
+=================================== */
+
+    body.dark-mode .status-badge-success {
+        background: #14532d;
+        color: #bbf7d0;
+    }
+
+    body.dark-mode .status-badge-warning {
+        background: #78350f;
+        color: #fde68a;
+    }
+
+    body.dark-mode .status-badge-info {
+        background: #0c4a6e;
+        color: #bae6fd;
+    }
+
+    body.dark-mode .status-badge-primary {
+        background: #1e3a8a;
+        color: #bfdbfe;
+    }
+
+    /* ===================================
+   TEXT & HR
+=================================== */
+
+    body.dark-mode hr {
+        border-color: #444;
+    }
+
+    body.dark-mode .text-dark {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .text-muted,
+    body.dark-mode .text-secondary {
+        color: #cbd5e1 !important;
+    }
+
+    /* ===================================
+   DROPDOWN
+=================================== */
+
+    body.dark-mode .dropdown-menu {
+        background: #252525;
+        border-color: #444;
+    }
+
+    body.dark-mode .dropdown-item {
+        color: #ffffff;
+    }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #333;
+        }
+
+    /* ===================================
+   MODAL
+=================================== */
+
+    body.dark-mode .modal-content {
+        background: #1e1e1e;
+        color: #ffffff;
+    }
+
+    body.dark-mode .modal-header,
+    body.dark-mode .modal-footer {
+        border-color: #444;
+    }
+
+    /* ===================================
+   BOOTSTRAP BACKGROUND
+=================================== */
+
+    body.dark-mode .bg-white {
+        background-color: #1e1e1e !important;
+    }
+
+    body.dark-mode .bg-light {
+        background-color: #252525 !important;
+    }
+
+    body.dark-mode .border {
+        border-color: #444 !important;
+    }
+
+
+/* ===================================
+   DARK MODE TOÀN HỆ THỐNG
+=================================== */
+
+body.dark-mode {
+    background: #0f1117 !important;
+    color: #ffffff !important;
+}
+
+    body.dark-mode .container,
+    body.dark-mode .container-fluid,
+    body.dark-mode .row,
+    body.dark-mode main {
+        background: #0f1117 !important;
+    }
+
+    /* Navbar */
+
+    body.dark-mode .navbar {
+        background: #121212 !important;
+        border-bottom: 1px solid #333 !important;
+    }
+
+        body.dark-mode .navbar-brand,
+        body.dark-mode .navbar a,
+        body.dark-mode .navbar .nav-link {
+            color: #ffffff !important;
+        }
+
+    /* Sidebar */
+
+    body.dark-mode .bg-light {
+        background: #1a1a1a !important;
+    }
+
+    body.dark-mode .border-end,
+    body.dark-mode .border-top,
+    body.dark-mode .border-bottom,
+    body.dark-mode .border {
+        border-color: #333 !important;
+    }
+
+    body.dark-mode .nav-link {
+        color: #e5e7eb !important;
+    }
+
+        body.dark-mode .nav-link:hover {
+            color: #60a5fa !important;
+        }
+
+    /* Card */
+
+    body.dark-mode .card,
+    body.dark-mode .custom-card,
+    body.dark-mode .settings-card {
+        background: #1e1e1e !important;
+        color: #ffffff !important;
+        border-color: #333 !important;
+    }
+
+    body.dark-mode .card-header,
+    body.dark-mode .card-header-gradient {
+        background: #252525 !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode .card-body {
+        color: #ffffff !important;
+    }
+
+    /* Table */
+
+    body.dark-mode table,
+    body.dark-mode .table {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode th {
+        background: #252525 !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode td {
+        background: #1e1e1e !important;
+        color: #e5e7eb !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode .table-hover tbody tr:hover td {
+        background: #2a2a2a !important;
+    }
+
+    /* Form */
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select,
+    body.dark-mode textarea {
+        background: #2b2b2b !important;
+        color: #ffffff !important;
+        border-color: #444 !important;
+    }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            background: #333 !important;
+            color: #ffffff !important;
+            border-color: #4dabf7 !important;
+            box-shadow: none !important;
+        }
+
+    body.dark-mode ::placeholder {
+        color: #b0b0b0 !important;
+    }
+
+    /* Text */
+
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode h3,
+    body.dark-mode h4,
+    body.dark-mode h5,
+    body.dark-mode h6,
+    body.dark-mode .text-dark,
+    body.dark-mode .page-title {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .text-muted,
+    body.dark-mode .text-secondary {
+        color: #cbd5e1 !important;
+    }
+
+    /* Badge */
+
+    body.dark-mode .badge,
+    body.dark-mode .status-badge {
+        color: #ffffff !important;
+    }
+
+    /* Dropdown */
+
+    body.dark-mode .dropdown-menu {
+        background: #252525 !important;
+        border-color: #444 !important;
+    }
+
+    body.dark-mode .dropdown-item {
+        color: #ffffff !important;
+    }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #333 !important;
+        }
+
+    /* Modal */
+
+    body.dark-mode .modal-content {
+        background: #1e1e1e !important;
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .modal-header,
+    body.dark-mode .modal-footer {
+        border-color: #444 !important;
+    }
+
+    /* Footer */
+
+    body.dark-mode footer {
+        background: #121212 !important;
+        color: #ffffff !important;
+    }
+
+        body.dark-mode footer a {
+            color: #60a5fa !important;
+        }
+
+    /* HR */
+
+    body.dark-mode hr {
+        border-color: #444 !important;
+    }

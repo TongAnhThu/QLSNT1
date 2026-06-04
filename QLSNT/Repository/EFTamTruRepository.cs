@@ -85,23 +85,20 @@ namespace QLSNT.Repositories
         {
             var today = DateTime.Today;
 
-            // Ví dụ quy ước: tạm trú còn hiệu lực nếu:
-            // - MaNguoiDan trùng
-            // - NgayBatDau <= hôm nay
-            // - NgayKetThuc null hoặc >= hôm nay
-            var query = _db.TamTrus
+            return await _db.TamTrus
+                .Include(t => t.XaMoi)
+                .ThenInclude(x => x.TinhMoi)
+                .Include(t => t.NguoiDan)
                 .Where(t =>
                     t.MaCCCD == maNguoiDan &&
-                    t.NgayDangKy <= today )
-                  
-                .OrderByDescending(t => t.NgayDangKy);
-
-            // Trả về List<TamTru>, nhưng kiểu khai báo là IEnumerable<TamTru> nên OK
-            return await query.ToListAsync();
+                    t.NgayDangKy <= today)
+                .OrderByDescending(t => t.NgayDangKy)
+                .ToListAsync();
         }
         public async Task<List<TamTru>> GetByNguoiDanAsync(string maCCCD)
         {
             return await _db.TamTrus
+           
                 .Include(t => t.XaMoi)
                 .Include(t => t.NguoiDan)
                 .Where(t => t.MaCCCD == maCCCD)

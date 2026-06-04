@@ -1,80 +1,274 @@
 ﻿@model QLSNT.Areas.User.ViewModel.HoSoCaNhanViewModel
 
 @{
-    ViewData["Title"] = "Thông tin cá nhân của tôi";
+    ViewData["Title"] = "Thông tin cá nhân";
     Layout = "~/Areas/User/Views/Shared/_Layout.cshtml";
 }
+<link rel="preconnect"
+      href="https://fonts.googleapis.com">
 
-<h2 class="text-primary mb-3">@ViewData["Title"]</h2>
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin>
 
-@if (Model.NguoiDan != null)
-{
-    <!-- Thông tin cơ bản -->
-    <div class="card mb-3">
-        <div class="card-header fw-bold">Thông tin cơ bản</div>
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">CCCD</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.MaCCCD</dd>
-
-                <dt class="col-sm-3">Họ tên</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.HoTen</dd>
-
-                <dt class="col-sm-3">Ngày sinh</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.NgaySinh?.ToString("dd/MM/yyyy")</dd>
-
-                <dt class="col-sm-3">Giới tính</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.GioiTinh</dd>
-
-                <dt class="col-sm-3">Nghề nghiệp</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.NgheNghiep</dd>
-
-                <dt class="col-sm-3">Nơi làm việc</dt>
-                <dd class="col-sm-9">@Model.NguoiDan.NoiLamViec</dd>
-            </dl>
-        </div>
-    </div>
-
-    <!-- Thường trú -->
-    <div class="card mb-3">
-        <div class="card-header fw-bold">Thường trú hiện tại</div>
-        <div class="card-body">
-            @if (Model.ThuongTruHienTai != null)
-            {
-                <p><strong>Địa chỉ:</strong> @Model.ThuongTruHienTai.DiaChi</p>
-                <p><strong>Ngày đăng ký:</strong> @Model.ThuongTruHienTai.NgayDangKy?.ToString("dd/MM/yyyy")</p>
-            }
-            else
-            {
-                <p>Chưa có thông tin thường trú</p>
-            }
-        </div>
-    </div>
-
-    <!-- Tạm trú -->
-    <div class="card mb-3">
-        <div class="card-header fw-bold">Danh sách tạm trú</div>
-        <div class="card-body">
-            @if (Model.DanhSachTamTru.Any())
-            {
-                <ul class="list-group">
-                    @foreach (var tamTru in Model.DanhSachTamTru)
-                    {
-                        <li class="list-group-item">
-                            <strong>@tamTru.DiaChi</strong> 
-                            (hiệu lực có thơi hạn đến @tamTru.ThoiHan)
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p>Không có tạm trú hiệu lực</p>
-            }
-        </div>
-    </div>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet">
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/User/ThongTinCaNhan.css"
+          asp-append-version="true" />
 }
-else
-{
-    <div class="alert alert-warning">@ViewBag.Message</div>
-}
+
+<div class="container-fluid mt-4 profile-container">
+
+    <!-- HEADER TRANG -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="page-title d-flex align-items-center">
+                <i class="fas fa-id-card text-primary me-2"></i>
+                Hồ Sơ Cá Nhân
+            </h2>
+            <p class="text-muted mb-0">Quản lý và tra cứu thông tin cá nhân trên hệ thống cơ trú dân cư</p>
+        </div>
+        <div>
+            <span class="badge bg-light text-dark border p-2 rounded-3">
+                <i class="fas fa-clock text-muted me-1"></i> Cập nhật: @DateTime.Now.ToString("dd/MM/yyyy")
+            </span>
+        </div>
+    </div>
+
+    @if (Model?.NguoiDan == null)
+    {
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body text-center p-5">
+                <div class="mb-3 text-warning">
+                    <i class="fas fa-exclamation-triangle fa-3x"></i>
+                </div>
+                <h4 class="fw-bold">Không tìm thấy thông tin công dân</h4>
+                <p class="text-muted mb-4">Dữ liệu của bạn chưa được liên kết hoặc cập nhật trên hệ thống cư trú.</p>
+                <a href="/" class="btn btn-primary px-4 rounded-pill">Quay lại trang chủ</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- BANNER THÔNG TIN TỔNG QUAN -->
+        <div class="profile-hero p-4 p-md-5 mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-md-auto text-center text-md-start">
+                    <div class="avatar-wrapper">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                             class="avatar-img" alt="Avatar" />
+                    </div>
+                </div>
+                <div class="col text-center text-md-start">
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                        <h1 class="fw-extrabold mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">
+                            @Model.NguoiDan.HoTen
+                        </h1>
+                        <span class="status-badge status-badge-primary bg-white text-primary">
+                            <i class="fas fa-check-circle"></i> Công dân chính thức
+                        </span>
+                    </div>
+                    <p class="mb-3 opacity-90 d-flex align-items-center justify-content-center justify-content-md-start gap-3 flex-wrap">
+                        <span><i class="fas fa-fingerprint me-1"></i> CCCD: <strong>@Model.NguoiDan.MaCCCD</strong></span>
+                        <span class="d-none d-md-inline">|</span>
+                        <span><i class="fas fa-user-tag me-1"></i> Đối tượng quản lý</span>
+                    </p>
+
+                    <!-- Stats Cards inside Hero -->
+                    <div class="row g-3 mt-2 justify-content-center justify-content-md-start">
+                        <div class="col-6 col-sm-4 col-md-auto">
+                            <div class="stat-card">
+                                <div class="text-white-50 small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Thường trú</div>
+                                <div class="fw-bold">
+                                    @(Model.ThuongTruHienTai != null ? "Đã đăng ký" : "Chưa có")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-auto">
+                            <div class="stat-card">
+                                <div class="text-white-50 small text-uppercase fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 0.05em;">Số nơi tạm trú</div>
+                                <div class="fw-bold">
+                                    @Model.DanhSachTamTru.Count() <span class="small font-normal">địa điểm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- CỘT TRÁI: THÔNG TIN LÝ LỊCH & THƯỜNG TRÚ -->
+            <div class="col-lg-5 mb-4">
+
+                <!-- HỒ SƠ CÔNG DÂN -->
+                <div class="card custom-card mb-4">
+                    <div class="card-header-gradient d-flex align-items-center">
+                        <div class="section-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold">Thông tin lý lịch</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="info-group">
+                            <div class="info-label">Họ và tên</div>
+                            <div class="info-value">@Model.NguoiDan.HoTen</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Số căn cước công dân</div>
+                            <div class="info-value">@Model.NguoiDan.MaCCCD</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Ngày sinh</div>
+                            <div class="info-value">
+                                @(Model.NguoiDan.NgaySinh is DateTime dtBirth ? dtBirth.ToString("dd/MM/yyyy") : Model.NguoiDan.NgaySinh?.ToString() ?? "Chưa cập nhật")
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Giới tính</div>
+                            <div class="info-value">@Model.NguoiDan.GioiTinh</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Nghề nghiệp</div>
+                            <div class="info-value">@(Model.NguoiDan.NgheNghiep ?? "Chưa cập nhật")</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Nơi làm việc</div>
+                            <div class="info-value">@(Model.NguoiDan.NoiLamViec ?? "Chưa cập nhật")</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- THÔNG TIN THƯỜNG TRÚ -->
+                <div class="card custom-card">
+                    <div class="card-header-gradient d-flex align-items-center">
+                        <div class="section-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold">Thông tin thường trú</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (Model.ThuongTruHienTai != null)
+                        {
+                            <div class="info-group">
+                                <div class="info-label">Địa chỉ thường trú</div>
+                                <div class="info-value text-primary">@Model.ThuongTruHienTai.DiaChi</div>
+                            </div>
+                            <div class="info-group">
+                                <div class="info-label">Ngày đăng ký thường trú</div>
+                                <div class="info-value">
+                                    @(Model.ThuongTruHienTai.NgayDangKy is DateTime dtReg ? dtReg.ToString("dd/MM/yyyy") : Model.ThuongTruHienTai.NgayDangKy?.ToString() ?? "Chưa cập nhật")
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center p-3">
+                                <div class="text-muted mb-2"><i class="fas fa-house-user fa-2x opacity-50"></i></div>
+                                <div class="alert alert-warning mb-0 p-2 text-center rounded-3 fs-7">
+                                    <i class="fas fa-exclamation-circle me-1"></i> Chưa có thông tin thường trú.
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- CỘT PHẢI: DANH SÁCH TẠM TRÚ -->
+            <div class="col-lg-7 mb-4">
+
+                <div class="card custom-card h-100">
+                    <div class="card-header-gradient d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <div class="section-icon section-icon-green">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <h5 class="mb-0 fw-bold">Danh sách nơi tạm trú</h5>
+                        </div>
+                        <span class="badge rounded-pill px-3 py-1 fw-bold" style="background-color: #ecfdf5; color: #059669;">
+                            @Model.DanhSachTamTru.Count() Bản ghi
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (Model.DanhSachTamTru.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table custom-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Địa chỉ tạm trú</th>
+                                            <th>Ngày đăng ký</th>
+                                            <th>Thời hạn</th>
+                                            <th>Đến ngày</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.DanhSachTamTru)
+                                        {
+                                            var isExpired = item.DenNgay < DateTime.Now;
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold text-dark">@item.DiaChi</div>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted">
+                                                        <i class="far fa-calendar-alt me-1"></i>
+                                                        @item.NgayDangKy?.ToString("dd/MM/yyyy")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border">
+                                                        @item.ThoiHan
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted">
+                                                        <i class="far fa-calendar-times me-1"></i>
+                                                        @(item.DenNgay?.ToString("dd/MM/yyyy") ?? "Không xác định")
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if (item.DenNgay == null)
+                                                    {
+                                                        <span class="status-badge status-badge-info">
+                                                            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true" style="width: 8px; height: 8px; margin-bottom: 2px;"></span> Vô thời hạn
+                                                        </span>
+                                                    }
+                                                    else if (isExpired)
+                                                    {
+                                                        <span class="status-badge status-badge-warning" style="background-color: #fef2f2; color: #dc2626;">
+                                                            <i class="fas fa-times-circle"></i> Hết hạn
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="status-badge status-badge-success">
+                                                            <i class="fas fa-check-circle"></i> Còn hiệu lực
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center p-5 my-5">
+                                <div class="text-muted mb-3"><i class="fas fa-map-marked-alt fa-3x opacity-40"></i></div>
+                                <h6 class="fw-bold text-secondary">Chưa có thông tin tạm trú</h6>
+                                <p class="text-muted small px-4">Lịch sử và danh sách các địa điểm tạm trú của công dân sẽ hiển thị chi tiết tại đây.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
