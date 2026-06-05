@@ -36,5 +36,6 @@ namespace QLSNT.Data
         public DbSet<TonGiao> TonGiaos { get; set; } = default!;
         public DbSet<QuanHeChuHo> QuanHeChuHos { get; set; } = default!;
         public DbSet<TrinhDoVanHoa> TrinhDoVanHoas { get; set; } = default!;
+        public DbSet<NhatKyHoatDong> NhatKyHoatDongs { get; set; } = default!;
     }
 }

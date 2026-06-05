@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using QLSNT.Data;
+using QLSNT.Models;
 
 namespace QLSNT.Areas.Identity.Pages.Account
 {
@@ -16,14 +18,17 @@ namespace QLSNT.Areas.Identity.Pages.Account
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _context;
 
         public LoginModel(SignInManager<IdentityUser> signInManager,
                           UserManager<IdentityUser> userManager,
-                          ILogger<LoginModel> logger)
+                          ILogger<LoginModel> logger,
+                          ApplicationDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
+            _context = context;
         }
 
         [BindProperty]
@@ -68,50 +73,80 @@ namespace QLSNT.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (ModelState.IsValid)
+            ExternalLogins =
+                (await _signInManager.GetExternalAuthenticationSchemesAsync())
+                .ToList();
+
+            if (!ModelState.IsValid)
             {
-                
-                var result = await _signInManager.PasswordSignInAsync(
-                    Input.MaCCCD, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                
-                if (result.Succeeded)
+                return Page();
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                Input.MaCCCD,
+                Input.Password,
+                Input.RememberMe,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Người dùng đăng nhập thành công.");
+
+                var user = await _userManager.FindByNameAsync(Input.MaCCCD);
+
+                if (user != null)
                 {
-                    _logger.LogInformation("Người dùng đăng nhập thành công.");
+                    _context.NhatKyHoatDongs.Add(new NhatKyHoatDong
+                    {
+                        UserId = user.Id,
+                        HanhDong = "Đăng nhập",
+                        MoTa = $"Đăng nhập hệ thống bằng CCCD {Input.MaCCCD}",
+                        ThoiGian = DateTime.Now,
+                        DiaChiIP = HttpContext.Connection.RemoteIpAddress?.ToString()
+                    });
 
-                    var user = await _userManager.FindByNameAsync(Input.MaCCCD);
+                    await _context.SaveChangesAsync();
 
-                    // 🔥 Nếu có returnUrl hợp lệ thì đi theo nó
-                    if (!string.IsNullOrEmpty(returnUrl) && returnUrl != "/")
+                    // Nếu có returnUrl thì ưu tiên chuyển theo returnUrl
+                    if (!string.IsNullOrEmpty(returnUrl) &&
+                        returnUrl != "/")
                     {
                         return LocalRedirect(returnUrl);
                     }
 
-                    // 🔥 Nếu là Admin → vào Admin
-                    if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+                    // Admin
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
                         return Redirect("/Admin/NguoiDan");
                     }
 
-                    // User thường
+                    // User
                     return Redirect("/Home");
                 }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("Tài khoản bị khóa.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Đăng nhập không hợp lệ.");
-                    return Page();
-                }
             }
+
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage(
+                    "./LoginWith2fa",
+                    new
+                    {
+                        ReturnUrl = returnUrl,
+                        RememberMe = Input.RememberMe
+                    });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("Tài khoản bị khóa.");
+
+                return RedirectToPage("./Lockout");
+            }
+
+            ModelState.AddModelError(
+                string.Empty,
+                "Đăng nhập không hợp lệ.");
 
             return Page();
         }

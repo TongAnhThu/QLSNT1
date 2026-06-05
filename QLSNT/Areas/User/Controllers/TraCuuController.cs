@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QLSNT.Areas.User.ViewModel;
 using QLSNT.Data;
 using QLSNT.Models;
-
+using System.Security.Claims;
 namespace QLSNT.Areas.User.Controllers
 {
     [Area("User")]
@@ -33,7 +33,7 @@ namespace QLSNT.Areas.User.Controllers
         // =====================================
 
         [HttpPost]
-        public IActionResult TimKiem(string diaChiCu)
+        public async Task<IActionResult> TimKiem(string diaChiCu)
         {
             if (string.IsNullOrWhiteSpace(diaChiCu))
             {
@@ -71,6 +71,11 @@ namespace QLSNT.Areas.User.Controllers
 
             if (!dsXaCu.Any())
             {
+                await GhiNhatKy(
+                    "Tra cứu địa chỉ",
+                    $"Không tìm thấy kết quả với từ khóa: {diaChiCu}"
+                );
+
                 ViewBag.Message = "Không tìm thấy xã cũ";
 
                 return View("Index");
@@ -127,7 +132,10 @@ namespace QLSNT.Areas.User.Controllers
                         });
                 }
             }
-
+            await GhiNhatKy(
+    "Tra cứu địa chỉ",
+    $"Tra cứu địa chỉ cũ: {diaChiCu}"
+);
             var result = new DiaChiMoiViewModel
             {
                 DiaChiCu = diaChiCu,
@@ -194,7 +202,32 @@ namespace QLSNT.Areas.User.Controllers
                 text = text.Replace(arr1[i], arr2[i]);
             }
 
+
+
+
             return text;
+        }
+
+
+
+        private async Task GhiNhatKy(string hanhDong, string moTa)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+                return;
+
+            var log = new NhatKyHoatDong
+            {
+                UserId = userId,
+                HanhDong = hanhDong,
+                MoTa = moTa,
+                ThoiGian = DateTime.Now,
+                DiaChiIP = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+
+            _context.NhatKyHoatDongs.Add(log);
+            await _context.SaveChangesAsync();
         }
     }
 }

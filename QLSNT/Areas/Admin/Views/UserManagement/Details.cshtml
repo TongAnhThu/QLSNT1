@@ -8,6 +8,8 @@
 
     var allRoles =
         ViewBag.AllRoles as List<Microsoft.AspNetCore.Identity.IdentityRole>;
+
+    var lichSu = ViewBag.LichSuHoatDong as List<NhatKyHoatDong>;
 }
 
 <div class="container mt-4">
@@ -109,7 +111,69 @@
             </form>
 
             <hr />
+            <hr />
 
+            <h5 class="mb-3">
+                <i class="fas fa-history text-primary"></i>
+                Lịch sử hoạt động
+            </h5>
+
+            @if (lichSu != null && lichSu.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th width="180">Thời gian</th>
+                                <th width="200">Hành động</th>
+                                <th>Mô tả</th>
+                                <th width="150">IP</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var item in lichSu)
+                            {
+                                <tr>
+
+                                    <td>
+                                        @item.ThoiGian.ToString("dd/MM/yyyy HH:mm:ss")
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-info">
+                                            @item.HanhDong
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @item.MoTa
+                                    </td>
+
+                                    <td>
+                                        @(string.IsNullOrEmpty(item.DiaChiIP)
+                                            ? "-"
+                                            : item.DiaChiIP)
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-secondary">
+                    Chưa có lịch sử hoạt động.
+                </div>
+            }
             <a asp-action="Index"
                class="btn btn-secondary">
                 Quay lại

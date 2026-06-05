@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using QLSNT.Areas.Admin.ViewModel;
 using QLSNT.Data;
 using QLSNT.Models;
+using System.Security.Claims;
 
 namespace QLSNT.Areas.Admin.Controllers
 {
@@ -15,7 +16,7 @@ namespace QLSNT.Areas.Admin.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
-        
+
 
         public UserManagementController(
             UserManager<IdentityUser> userManager,
@@ -63,9 +64,6 @@ namespace QLSNT.Areas.Admin.Controllers
 
         public async Task<IActionResult> Details(string id)
         {
-            if (string.IsNullOrEmpty(id))
-                return NotFound();
-
             var user = await _userManager.FindByIdAsync(id);
 
             if (user == null)
@@ -75,13 +73,18 @@ namespace QLSNT.Areas.Admin.Controllers
 
             ViewBag.AllRoles = _roleManager.Roles.ToList();
 
+            ViewBag.LichSuHoatDong = await _context.NhatKyHoatDongs
+                .Where(x => x.UserId == id)
+                .OrderByDescending(x => x.ThoiGian)
+                .Take(50)
+                .ToListAsync();
+
             return View(user);
         }
 
         #endregion
 
         #region Khóa tài khoản
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LockUser(string id)
@@ -94,6 +97,11 @@ namespace QLSNT.Areas.Admin.Controllers
             await _userManager.SetLockoutEndDateAsync(
                 user,
                 DateTimeOffset.UtcNow.AddYears(100));
+
+            await GhiNhatKy(
+                user.Id,
+                "Khóa tài khoản",
+                $"Tài khoản {user.UserName} bị khóa bởi Admin");
 
             TempData["Success"] = "Đã khóa tài khoản.";
 
@@ -113,9 +121,12 @@ namespace QLSNT.Areas.Admin.Controllers
             if (user == null)
                 return NotFound();
 
-            await _userManager.SetLockoutEndDateAsync(
-                user,
-                null);
+            await _userManager.SetLockoutEndDateAsync(user, null);
+
+            await GhiNhatKy(
+                user.Id,
+                "Mở khóa tài khoản",
+                $"Tài khoản {user.UserName} được mở khóa bởi Admin");
 
             TempData["Success"] = "Đã mở khóa tài khoản.";
 
@@ -166,6 +177,10 @@ namespace QLSNT.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            await GhiNhatKy(
+    user.Id,
+    "Reset mật khẩu",
+    $"Mật khẩu được đặt lại bởi Admin");
             TempData["Success"] =
                 $"Đã reset mật khẩu về: {defaultPassword}";
 
@@ -208,6 +223,13 @@ namespace QLSNT.Areas.Admin.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+            if (result.Succeeded)
+            {
+                await GhiNhatKy(
+                    user.Id,
+                    "Xóa tài khoản",
+                    $"Tài khoản {user.UserName} đã bị xóa");
+            }
 
             TempData["Success"] =
                 "Đã xóa tài khoản thành công.";
@@ -249,6 +271,13 @@ namespace QLSNT.Areas.Admin.Controllers
             await _userManager.AddToRoleAsync(
                 user,
                 roleName);
+
+
+            await GhiNhatKy(
+    user.Id,
+    "Cập nhật quyền",
+    $"Được gán quyền {roleName}");
+
 
             TempData["Success"] =
                 "Cập nhật quyền thành công.";
@@ -346,5 +375,34 @@ namespace QLSNT.Areas.Admin.Controllers
         }
 
         #endregion
+
+
+        private async Task GhiNhatKy(
+    string userId,
+    string hanhDong,
+    string moTa)
+        {
+            var log = new NhatKyHoatDong
+            {
+                UserId = userId,
+                HanhDong = hanhDong,
+                MoTa = moTa,
+                ThoiGian = DateTime.Now,
+                DiaChiIP = HttpContext.Connection.RemoteIpAddress?.ToString()
+            };
+
+            _context.NhatKyHoatDongs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IActionResult> LichSuHoatDong(string id)
+        {
+            var logs = await _context.NhatKyHoatDongs
+                .Where(x => x.UserId == id)
+                .OrderByDescending(x => x.ThoiGian)
+                .ToListAsync();
+
+            return View(logs);
+        }
     }
 }
