@@ -9,7 +9,7 @@ using QLSNT.Repositories;
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
-   
+    [Authorize(Roles = "Admin,Employee")]
     public class LichSuDiaChiController : Controller
     {
         private readonly ILichSuDiaChiRepository _lsctRepo;

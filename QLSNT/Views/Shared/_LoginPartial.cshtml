@@ -20,15 +20,32 @@
         @if (roles.Contains("Admin"))
         {
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">
+                <a class="nav-link text-dark"
+                   asp-area="Admin"
+                   asp-controller="NguoiDan"
+                   asp-action="Index">
                     Trang quản trị
+                </a>
+            </li>
+        }
+        else if (roles.Contains("Employee"))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark"
+                   asp-area="Admin"
+                   asp-controller="NguoiDan"
+                   asp-action="Index">
+                    Trang nhân viên
                 </a>
             </li>
         }
         else if (roles.Contains("User"))
         {
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="User" asp-controller="ThongTinCaNhan" asp-action="Index">
+                <a class="nav-link text-dark"
+                   asp-area="User"
+                   asp-controller="ThongTinCaNhan"
+                   asp-action="Index">
                     Trang người dùng
                 </a>
             </li>

@@ -6,10 +6,13 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Data;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class TamTruController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Data;
@@ -7,7 +8,8 @@ using QLSNT.Repositories;
 
 namespace QLSNT.Areas.Admin.Controllers
 {
-    [Area("Admin")]
+    [Area("Admin")]  
+    [Authorize(Roles = "Admin,Employee")]
     public class NguoiDanController : Controller
     {
         private readonly ApplicationDbContext _context;

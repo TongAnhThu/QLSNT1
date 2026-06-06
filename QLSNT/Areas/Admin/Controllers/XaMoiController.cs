@@ -4,10 +4,12 @@ using QLSNT.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace QLSNT.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class XaMoiController : Controller
     {
         private readonly IXaMoiRepository _repo;

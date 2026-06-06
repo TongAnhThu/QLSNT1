@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using QLSNT.Models;
 using QLSNT.Repositories;
 
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class TinhMoiController : Controller
     {
         private readonly ITinhMoiRepository _repo;

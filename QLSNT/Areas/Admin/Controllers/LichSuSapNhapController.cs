@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Areas.Admin.ViewModel;
@@ -9,6 +10,7 @@ using QLSNT.Repositories;
 namespace QLSNT.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class LichSuSapNhapController : Controller
     {
         private readonly ApplicationDbContext _context;

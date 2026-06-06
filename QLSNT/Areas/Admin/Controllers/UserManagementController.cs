@@ -10,7 +10,7 @@ using System.Security.Claims;
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class UserManagementController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;

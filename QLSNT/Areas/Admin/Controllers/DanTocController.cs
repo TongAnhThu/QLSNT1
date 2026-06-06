@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using QLSNT.Models;
 using QLSNT.Repositories;
 using QLSNT.Data;
-
+using Microsoft.AspNetCore.Authorization;
 namespace QLSNT.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class DanTocController : Controller
     {
         private readonly ApplicationDbContext _context;

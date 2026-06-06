@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Text;
 using Microsoft.VisualStudio.TextTemplating;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class DangKyNguoiDanController : Controller
     {
         private readonly INguoiDanRepository _nguoiDanRepo;

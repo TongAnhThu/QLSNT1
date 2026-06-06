@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Areas.Admin.ViewModel;
 
@@ -9,6 +10,7 @@ using QLSNT.ViewModels;
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class BaoCaoController : Controller
     {
         private readonly ApplicationDbContext _context;

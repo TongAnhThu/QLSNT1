@@ -80,14 +80,17 @@
                                        class="btn btn-sm btn-info me-1">Chi tiết</a>
                                     <a asp-controller="DangKyNguoiDan" asp-action="Edit" asp-route-maCCCD="@item.MaCCCD"
                                        class="btn btn-sm btn-warning me-1">Sửa</a>
-                                    <a asp-area="Admin"
-                                       asp-controller="NguoiDan"
-                                       asp-action="Delete"
-                                       asp-route-id="@item.MaCCCD"
-                                       class="btn btn-sm btn-danger"
-                                       onclick="return confirm('Bạn có chắc muốn xóa người dân này?');">
-                                        Xóa
-                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-area="Admin"
+                                           asp-controller="NguoiDan"
+                                           asp-action="Delete"
+                                           asp-route-id="@item.MaCCCD"
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Bạn có chắc muốn xóa người dân này?');">
+                                            Xóa
+                                        </a>
+                                    }
                                 </td>
                             </tr>
                         }

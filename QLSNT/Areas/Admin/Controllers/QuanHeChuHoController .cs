@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QLSNT.Models;
 using QLSNT.Repositories;
-
+using Microsoft.AspNetCore.Authorization;
 namespace QLSNT.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class QuanHeChuHoController : Controller
     {
         private readonly IQuanHeChuHoRepository _repo;

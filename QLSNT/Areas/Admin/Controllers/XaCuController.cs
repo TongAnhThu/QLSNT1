@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QLSNT.Models;
 using QLSNT.Repositories;
@@ -6,6 +7,7 @@ using QLSNT.Repositories;
 namespace QLSNT.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin,Employee")]
     public class XaCuController : Controller
     {
         private readonly IXaCuRepository _repoXa;
