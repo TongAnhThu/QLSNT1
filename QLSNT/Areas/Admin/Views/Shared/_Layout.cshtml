@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
 }
 
@@ -12,58 +12,189 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 
+    <!-- Google Fonts & Font Awesome 6 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <style>
         body {
+            background-color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #334155;
             margin: 0;
         }
 
         /* NAVBAR */
         .navbar {
-            height: 56px;
+            height: 64px;
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .navbar-brand {
+            font-size: 1.35rem;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .nav-user-badge {
+            background-color: rgba(79, 70, 229, 0.08);
+            color: #4f46e5;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            background-color: rgba(239, 68, 68, 0.08);
+            color: #ef4444;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-logout:hover {
+            background-color: #ef4444;
+            color: white;
         }
 
         /* SIDEBAR */
         .sidebar {
-            width: 250px;
-            height: calc(100vh - 56px);
-            background-color: #212529;
-            color: white;
+            width: 260px;
+            height: calc(100vh - 64px);
+            background-color: #0f172a;
+            color: #94a3b8;
             position: fixed;
-            top: 56px;
+            top: 64px;
             left: 0;
             overflow-y: auto;
+            border-right: 1px solid #1e293b;
+            padding: 1.5rem 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: #1e293b #0f172a;
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 2px;
         }
 
-            .sidebar h4 {
-                text-align: center;
-                padding: 15px;
-                border-bottom: 1px solid #444;
-            }
+        .sidebar h4 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #475569;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+            border-bottom: none;
+            text-align: left;
+        }
 
-            .sidebar .nav-link {
-                color: white;
-                padding: 8px 15px;
-                display: block;
-                text-decoration: none;
-            }
+        .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 0.65rem 0.85rem;
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
 
-                .sidebar .nav-link:hover {
-                    background-color: #0d6efd;
-                    border-radius: 5px;
-                }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            transform: translateX(3px);
+        }
+
+        .sidebar .nav-link.active-link {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
 
         .section-title {
-            font-weight: bold;
-            margin: 10px 0 5px 10px;
-            font-size: 14px;
-            color: #ccc;
+            margin-top: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar .section-title a[data-bs-toggle="collapse"] {
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .sidebar .section-title a[data-bs-toggle="collapse"]:hover {
+            color: #f8fafc;
+        }
+
+        /* Chevron indicator styling */
+        .sidebar .section-title a[data-bs-toggle="collapse"]::after {
+            content: "\f105"; /* Angle right */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+            margin-left: auto;
+            color: #475569;
+        }
+        .sidebar .section-title a[data-bs-toggle="collapse"][aria-expanded="true"]::after {
+            transform: rotate(90deg);
+            color: #94a3b8;
         }
 
         /* CONTENT */
         .content {
-            margin-left: 250px;
-            margin-top: 56px;
-            padding: 20px;
+            margin-left: 260px;
+            margin-top: 64px;
+            padding: 2.5rem;
+            min-height: calc(100vh - 64px);
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive design */
+
+        @@media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-260px);
+                z-index: 1040;
+                transition: transform 0.3s ease;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -71,16 +202,16 @@
 <body>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom shadow-sm fixed-top">
+    <nav class="navbar navbar-expand-md navbar-light fixed-top">
         <div class="container-fluid">
 
             <!-- Logo -->
             <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                QLSNT
+                <i class="fa-solid fa-server me-2 fs-5"></i>QLSNT
             </a>
 
             <!-- Toggle -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -89,26 +220,27 @@
                 <!-- LEFT -->
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                        <a class="nav-link fw-semibold text-slate-600 px-3" asp-area="" asp-controller="Home" asp-action="Index">
                             Trang chủ
                         </a>
                     </li>
                 </ul>
 
                 <!-- RIGHT -->
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <span class="nav-link">
+                        <li class="nav-item me-2">
+                            <span class="nav-user-badge d-inline-flex align-items-center">
+                                <i class="fa-solid fa-circle-user me-2 fs-6"></i>
                                 Xin chào, <strong>@User.Identity.Name</strong>
                             </span>
                         </li>
 
                         <li class="nav-item">
-                            <form asp-area="Identity" asp-page="/Account/Logout" method="post">
-                                <button type="submit" class="btn btn-outline-danger ms-2">
-                                    Đăng xuất
+                            <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn-logout d-inline-flex align-items-center">
+                                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Đăng xuất
                                 </button>
                             </form>
                         </li>
@@ -116,8 +248,8 @@
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
-                                Đăng nhập
+                            <a class="nav-link fw-semibold text-slate-600" asp-area="Identity" asp-page="/Account/Login">
+                                <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Đăng nhập
                             </a>
                         </li>
                     }
@@ -129,130 +261,137 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <h4>ADMIN</h4>
+        <h4>HỆ THỐNG QLSNT</h4>
 
-        <a class="nav-link" asp-area="Admin" asp-controller="Home" asp-action="Index">📊 Trang chủ</a>
+        <a class="nav-link" id="nav-home" asp-area="Admin" asp-controller="Home" asp-action="Index">
+            <i class="fa-solid fa-chart-pie me-2"></i> Trang chủ
+        </a>
 
-        <div class="section-title">
-            <a class="nav-link text-white" data-bs-toggle="collapse" href="#nguoiDanMenu" role="button">
-                👨‍👩‍👧 Người dân
-            </a>
-        </div>
-
-        <div class="collapse" id="nguoiDanMenu">
-
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">
-                Người dân
-            </a>
-
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="DanToc" asp-action="Index">
-                Dân tộc
-            </a>
-
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TonGiao" asp-action="Index">
-                Tôn giáo
-            </a>
-
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TrinhDoVanHoa" asp-action="Index">
-                Trình độ văn hóa
-            </a>
-
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="QuanHeChuHo" asp-action="Index">
-                Quan hệ chủ hộ
-            </a>
-
-        </div>
         <!-- ĐVHC cũ -->
         <div class="section-title">
-            <a class="nav-link text-white" data-bs-toggle="collapse" href="#dvhcCuMenu">
-                🏛️ ĐVHC cũ
+            <a data-bs-toggle="collapse" href="#dvhcCuMenu" role="button" aria-expanded="false">
+                <span>🏛️ ĐVHC cũ</span>
             </a>
         </div>
         <div class="collapse" id="dvhcCuMenu">
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TinhCu" asp-action="Index">Tỉnh</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="HuyenCu" asp-action="Index">Huyện</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="XaCu" asp-action="Index">Xã</a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="TinhCu" asp-action="Index">
+                <i class="fa-solid fa-map-location me-2" style="font-size: 11px;"></i> Tỉnh thành
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="HuyenCu" asp-action="Index">
+                <i class="fa-solid fa-tree-city me-2" style="font-size: 11px;"></i> Quận huyện
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="XaCu" asp-action="Index">
+                <i class="fa-solid fa-house-chimney-window me-2" style="font-size: 11px;"></i> Xã phường
+            </a>
         </div>
 
         <!-- ĐVHC mới -->
         <div class="section-title">
-            <a class="nav-link text-white" data-bs-toggle="collapse" href="#dvhcMoiMenu">
-                🏢 ĐVHC mới
+            <a data-bs-toggle="collapse" href="#dvhcMoiMenu" role="button" aria-expanded="false">
+                <span>🏢 ĐVHC mới</span>
             </a>
         </div>
         <div class="collapse" id="dvhcMoiMenu">
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TinhMoi" asp-action="Index">Tỉnh</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="XaMoi" asp-action="Index">Xã</a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="TinhMoi" asp-action="Index">
+                <i class="fa-solid fa-map-location-dot me-2" style="font-size: 11px;"></i> Tỉnh thành mới
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="XaMoi" asp-action="Index">
+                <i class="fa-solid fa-hotel me-2" style="font-size: 11px;"></i> Xã phường mới
+            </a>
+        </div>
+
+        <!-- Dân cư -->
+        <div class="section-title">
+            <a data-bs-toggle="collapse" href="#nguoiDanMenu" role="button" aria-expanded="false">
+                <span>👨‍👩‍👧 Dân cư & Nhân khẩu</span>
+            </a>
+        </div>
+        <div class="collapse" id="nguoiDanMenu">
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="NguoiDan" asp-action="Index">
+                <i class="fa-solid fa-users me-2" style="font-size: 11px;"></i> Người dân
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="DanToc" asp-action="Index">
+                <i class="fa-solid fa-circle-nodes me-2" style="font-size: 11px;"></i> Dân tộc
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="TonGiao" asp-action="Index">
+                <i class="fa-solid fa-hands-praying me-2" style="font-size: 11px;"></i> Tôn giáo
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="TrinhDoVanHoa" asp-action="Index">
+                <i class="fa-solid fa-graduation-cap me-2" style="font-size: 11px;"></i> Trình độ văn hóa
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="QuanHeChuHo" asp-action="Index">
+                <i class="fa-solid fa-people-roof me-2" style="font-size: 11px;"></i> Quan hệ chủ hộ
+            </a>
         </div>
 
         <!-- Cư trú -->
         <div class="section-title">
-            <a class="nav-link text-white" data-bs-toggle="collapse" href="#cuTruMenu">
-                🏠 Cư trú
+            <a data-bs-toggle="collapse" href="#cuTruMenu" role="button" aria-expanded="false">
+                <span>🏠 Quản lý cư trú</span>
             </a>
         </div>
         <div class="collapse" id="cuTruMenu">
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="ThuongTru" asp-action="Index">Thường trú</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="TamTru" asp-action="Index">Tạm trú</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="LichSuDiaChi" asp-action="Index">Lịch sử địa chỉ</a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="ThuongTru" asp-action="Index">
+                <i class="fa-solid fa-house-user me-2" style="font-size: 11px;"></i> Thường trú
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="TamTru" asp-action="Index">
+                <i class="fa-solid fa-house-laptop me-2" style="font-size: 11px;"></i> Tạm trú
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="LichSuDiaChi" asp-action="Index">
+                <i class="fa-solid fa-clock-rotate-left me-2" style="font-size: 11px;"></i> Lịch sử địa chỉ
+            </a>
         </div>
 
         <!-- Sự kiện -->
         <div class="section-title">
-            <a class="nav-link text-white" data-bs-toggle="collapse" href="#suKienMenu">
-                📜 Sự kiện
+            <a data-bs-toggle="collapse" href="#suKienMenu" role="button" aria-expanded="false">
+                <span>📜 Sự kiện & Lịch sử</span>
             </a>
         </div>
         <div class="collapse" id="suKienMenu">
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="SuKienHanhChinh" asp-action="Index">Sự kiện hành chính</a>
-            <a class="nav-link ms-3" asp-area="Admin" asp-controller="LichSuSapNhap" asp-action="Index">Lịch sử sáp nhập</a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="SuKienHanhChinh" asp-action="Index">
+                <i class="fa-solid fa-clipboard-list me-2" style="font-size: 11px;"></i> Sự kiện hành chính
+            </a>
+            <a class="nav-link ms-2" asp-area="Admin" asp-controller="LichSuSapNhap" asp-action="Index">
+                <i class="fa-solid fa-timeline me-2" style="font-size: 11px;"></i> Lịch sử sáp nhập
+            </a>
         </div>
 
         <!-- Báo cáo -->
-
-        <a class="nav-link ms-3" asp-area="Admin" asp-controller="BaoCao" asp-action="Index">Báo Cáo Thống Kê</a>
+        <div class="section-title">
+            <a class="nav-link-title" style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; padding:0.5rem; text-decoration:none; display:block;">
+                Báo cáo
+            </a>
+        </div>
+        <a class="nav-link" asp-area="Admin" asp-controller="BaoCao" asp-action="Index">
+            <i class="fa-solid fa-chart-line me-2"></i> Báo Cáo Thống Kê
+        </a>
 
         <!-- Quản trị hệ thống -->
-       
         @if (User.IsInRole("Admin"))
         {
             <div class="section-title">
-                <a class="nav-link text-white"
-                   data-bs-toggle="collapse"
-                   href="#heThongMenu">
-                    ⚙️ Hệ thống
+                <a data-bs-toggle="collapse" href="#heThongMenu" role="button" aria-expanded="false">
+                    <span>⚙️ Hệ thống</span>
                 </a>
             </div>
 
             <div class="collapse" id="heThongMenu">
-
-                <a class="nav-link ms-3"
-                   asp-area="Admin"
-                   asp-controller="UserManagement"
-                   asp-action="Index">
-                    👥 Quản lý tài khoản
+                <a class="nav-link ms-2" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">
+                    <i class="fa-solid fa-users-gear me-2" style="font-size: 11px;"></i> Quản lý tài khoản
                 </a>
 
-                <a class="nav-link ms-3"
-                   asp-area="Admin"
-                   asp-controller="UserManagement"
-                   asp-action="Roles">
-                    🔐 Quản lý Role
+                <a class="nav-link ms-2" asp-area="Admin" asp-controller="UserManagement" asp-action="Roles">
+                    <i class="fa-solid fa-shield-halved me-2" style="font-size: 11px;"></i> Quản lý Role
                 </a>
 
-                <a class="nav-link ms-3"
-                   asp-area="Admin"
-                   asp-controller="CaiDat"
-                   asp-action="Index">
-                    ⚙️ Cài đặt hệ thống
+                <a class="nav-link ms-2" asp-area="Admin" asp-controller="CaiDat" asp-action="Index">
+                    <i class="fa-solid fa-sliders me-2" style="font-size: 11px;"></i> Cài đặt hệ thống
                 </a>
-
             </div>
         }
     </div>
-    
 
-    
     <!-- CONTENT -->
     <div class="content">
         @RenderBody()
@@ -260,6 +399,48 @@
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Auto-active current link script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname.toLowerCase();
+            const navLinks = document.querySelectorAll(".sidebar .nav-link");
+            let foundActive = false;
+
+            navLinks.forEach(link => {
+                const href = link.getAttribute("href");
+                if (href) {
+                    const normalizedHref = href.toLowerCase();
+                    // Match path exactly or as prefix
+                    if (currentPath === normalizedHref || (normalizedHref !== "/" && normalizedHref !== "/admin" && currentPath.startsWith(normalizedHref))) {
+                        link.classList.add("active-link");
+                        foundActive = true;
+                        
+                        // Expand the parent collapse if it exists
+                        const parentCollapse = link.closest(".collapse");
+                        if (parentCollapse) {
+                            parentCollapse.classList.add("show");
+                            // Set aria-expanded to true for the trigger link
+                            const triggerId = parentCollapse.getAttribute("id");
+                            const trigger = document.querySelector(`a[href="#${triggerId}"]`);
+                            if (trigger) {
+                                trigger.setAttribute("aria-expanded", "true");
+                            }
+                        }
+                    }
+                }
+            });
+
+            // If no match is found, highlight Home if we are on root Admin path
+            if (!foundActive && (currentPath === "/admin" || currentPath === "/admin/home" || currentPath === "/admin/home/index")) {
+                const homeLink = document.getElementById("nav-home");
+                if (homeLink) {
+                    homeLink.classList.add("active-link");
+                }
+            }
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>

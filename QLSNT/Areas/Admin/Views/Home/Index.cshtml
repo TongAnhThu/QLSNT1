@@ -1,129 +1,959 @@
-﻿@{
-    ViewData["Title"] = "Dashboard Admin";
+@{
+    ViewData["Title"] = "Dashboard Admin - Hệ Thống Sau Sáp Nhập";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+    // Serialize dữ liệu phức tạp sang JSON ngay trong Razor để tránh lỗi encoding tiếng Việt
+    var danSoTinhJson   = System.Text.Json.JsonSerializer.Serialize(
+        (ViewBag.DanSoTheoTinhMoi as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+        .Select(x => new { name = (string)x.Name, value = (int)x.Value }));
+
+    var danSoXaJson     = System.Text.Json.JsonSerializer.Serialize(
+        (ViewBag.DanSoTheoXaMoi  as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+        .Select(x => new { name = (string)x.Name, value = (int)x.Value }));
+
+    var gioiTinhJson    = System.Text.Json.JsonSerializer.Serialize(
+        (ViewBag.GioiTinhStats   as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+        .Select(x => new { name = (string)x.Name, value = (int)x.Value }));
+
+    var phanBoXaJson    = System.Text.Json.JsonSerializer.Serialize(
+        (ViewBag.PhanBoXaMoiTheoTinh as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>())
+        .Select(x => new { name = (string)x.Name, value = (int)x.Value }));
 }
 
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-    }
+<div class="dashboard-wrapper container-fluid py-4">
 
-    .wrapper {
-        display: flex;
-    }
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold mb-1 text-slate-800">
+                Hệ Thống Quản Lý Hành Chính Sau Sáp Nhập Tỉnh
+            </h2>
+            <p class="text-muted mb-0">
+                Thống kê, đối chiếu địa giới hành chính trước - sau sáp nhập và biến động cư trú
+            </p>
+        </div>
+        <div>
+            <div class="db-time-card card border-0 shadow-sm rounded-3 py-2 px-3 bg-white">
+                <small class="text-muted text-xs text-uppercase fw-bold tracking-wider">Ngày hiện tại</small>
+                <div id="current-date" class="fw-bold text-primary text-sm mt-1"></div>
+            </div>
+        </div>
+    </div>
 
-    /* Sidebar */
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        background-color: #212529;
-        color: white;
-        position: fixed;
-    }
+    <!-- ── TAB NAVIGATION ─────────────────────────────────────── -->
+    <div class="tabs-nav mb-4 bg-white p-2 rounded-4 shadow-sm border d-flex flex-wrap gap-2">
+        <button class="btn tab-btn active" data-tab="tab-tongquan" onclick="showTab('tab-tongquan')">
+            <i class="fa-solid fa-chart-line me-2"></i>Tổng quan hệ thống
+        </button>
+        <button class="btn tab-btn" data-tab="tab-dancu" onclick="showTab('tab-dancu')">
+            <i class="fa-solid fa-users me-2"></i>Dashboard Dân cư
+        </button>
+        <button class="btn tab-btn" data-tab="tab-sapnhap" onclick="showTab('tab-sapnhap')">
+            <i class="fa-solid fa-map-location-dot me-2"></i>Dashboard Sau sáp nhập
+        </button>
+    </div>
 
-        .sidebar h4 {
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #444;
-        }
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 1 · TỔNG QUAN HỆ THỐNG
+    ══════════════════════════════════════════════════════════════ -->
+    <div id="tab-tongquan" class="tab-content-panel">
 
-        .sidebar .nav-link {
-            color: white;
-            padding: 8px 15px;
-            display: block;
-            text-decoration: none;
-        }
-
-            .sidebar .nav-link:hover {
-                background-color: #0d6efd;
-                border-radius: 5px;
-            }
-
-        .sidebar .section-title {
-            font-weight: bold;
-            margin: 10px 0 5px 10px;
-            font-size: 14px;
-            color: #ccc;
-        }
-
-    /* Content */
-    .content {
-        margin-left: 250px;
-        padding: 20px;
-        width: 100%;
-    }
-
-    .card {
-        border-radius: 10px;
-        padding: 20px;
-        color: white;
-        margin-bottom: 20px;
-    }
-
-    .bg-primary {
-        background-color: #0d6efd;
-    }
-
-    .bg-success {
-        background-color: #198754;
-    }
-
-    .bg-warning {
-        background-color: #ffc107;
-        color: black;
-    }
-
-    .row {
-        display: flex;
-        gap: 20px;
-    }
-
-    .col {
-        flex: 1;
-    }
-</style>
-
-<div class="wrapper">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h4>ADMIN</h4>
-
-      
-
-    <!-- CONTENT -->
-    <div class="content">
-        <h2>📊 Dashboard</h2>
-
-        <div class="row">
-            <div class="col">
-                <div class="card bg-primary">
-                    <h5>Người dân</h5>
-                    <h2>@ViewBag.NguoiDanCount</h2>
+        <!-- KPI Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 kpi-card border-start-primary">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="kpi-badge bg-primary-soft text-primary">Nhân khẩu</span>
+                        <div class="kpi-icon-wrapper text-primary bg-primary-soft">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-uppercase text-muted fw-bold text-xs tracking-wider mb-2">Tổng số người dân</h6>
+                    <h2 class="kpi-value fw-extrabold mb-1">@ViewBag.NguoiDanCount</h2>
+                    <div class="text-muted text-xs d-flex align-items-center mt-2">
+                        <i class="fa-solid fa-circle-check text-success me-1"></i>
+                        <span>Hồ sơ công dân đăng ký</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="col">
-                <div class="card bg-success">
-                    <h5>Tạm trú</h5>
-                    <h2>@ViewBag.TamTruCount</h2>
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 kpi-card border-start-success">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="kpi-badge bg-success-soft text-success">Cư trú</span>
+                        <div class="kpi-icon-wrapper text-success bg-success-soft">
+                            <i class="fa-solid fa-address-book"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-uppercase text-muted fw-bold text-xs tracking-wider mb-2">Bản ghi cư trú</h6>
+                    <h2 class="kpi-value fw-extrabold mb-1">@ViewBag.CuTruCount</h2>
+                    <div class="text-muted text-xs d-flex align-items-center mt-2">
+                        <i class="fa-solid fa-circle-dot text-success me-1"></i>
+                        <span>Thường trú & Tạm trú</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="col">
-                <div class="card bg-warning">
-                    <h5>Thường trú</h5>
-                    <h2>@ViewBag.ThuongTruCount</h2>
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 kpi-card border-start-purple">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="kpi-badge bg-purple-soft text-purple">Biến động</span>
+                        <div class="kpi-icon-wrapper text-purple bg-purple-soft">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-uppercase text-muted fw-bold text-xs tracking-wider mb-2">Sự kiện hành chính</h6>
+                    <h2 class="kpi-value fw-extrabold mb-1">@ViewBag.SuKienCount</h2>
+                    <div class="text-muted text-xs d-flex align-items-center mt-2">
+                        <i class="fa-solid fa-circle-dot text-purple me-1"></i>
+                        <span>Nghị quyết, sự kiện sáp nhập</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 kpi-card border-start-teal">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="kpi-badge bg-teal-soft text-teal">Hiện hành</span>
+                        <div class="kpi-icon-wrapper text-teal bg-teal-soft">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                    </div>
+                    <h6 class="text-uppercase text-muted fw-bold text-xs tracking-wider mb-2">Xã mới hiện hành</h6>
+                    <h2 class="kpi-value fw-extrabold mb-1">@ViewBag.XaMoiCount</h2>
+                    <div class="text-muted text-xs d-flex align-items-center mt-2">
+                        <i class="fa-solid fa-circle-dot text-teal me-1"></i>
+                        <span>Đơn vị hành chính mới</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <hr />
+        <!-- Comparison panels -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white unit-compare-card">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="section-icon-box bg-warning-soft text-warning me-3">
+                            <i class="fa-solid fa-clock-rotate-left fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-slate-800">Đơn vị hành chính Cũ</h5>
+                            <p class="text-muted text-xs mb-0">Địa giới lịch sử trước khi sáp nhập</p>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="metric-mini-card border-left-primary">
+                                <div class="text-muted text-xs text-uppercase fw-bold mb-1">Tỉnh Cũ</div>
+                                <div class="metric-value">@ViewBag.TinhCuCount</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-mini-card border-left-info">
+                                <div class="text-muted text-xs text-uppercase fw-bold mb-1">Huyện Cũ</div>
+                                <div class="metric-value">@ViewBag.HuyenCuCount</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="metric-mini-card border-left-danger">
+                                <div class="text-muted text-xs text-uppercase fw-bold mb-1">Xã Cũ</div>
+                                <div class="metric-value">@ViewBag.XaCuCount</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <h4>⚡ Truy cập nhanh</h4>
-        <a class="btn btn-primary" href="/Admin/NguoiDan">Người dân</a>
-        <a class="btn btn-success" href="/Admin/TamTru">Tạm trú</a>
-        <a class="btn btn-warning" href="/Admin/ThuongTru">Thường trú</a>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white unit-compare-card">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="section-icon-box bg-success-soft text-success me-3">
+                            <i class="fa-solid fa-map-location-dot fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-slate-800">Đơn vị hành chính Mới</h5>
+                            <p class="text-muted text-xs mb-0">Địa giới hành chính sau khi tái cấu trúc</p>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="metric-mini-card border-left-success">
+                                <div class="text-muted text-xs text-uppercase fw-bold mb-1">Tỉnh Mới</div>
+                                <div class="metric-value">@ViewBag.TinhMoiCount</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="metric-mini-card border-left-teal">
+                                <div class="text-muted text-xs text-uppercase fw-bold mb-1">Xã Mới</div>
+                                <div class="metric-value">@ViewBag.XaMoiCount</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Charts: Cư trú | Biến động Tỉnh | Biến động Xã -->
+        <div class="row g-4">
+            <!-- Chart 1: Donut cư trú -->
+            <div class="col-lg-4 col-md-6">
+                <div class="chart-container-card card border-0 shadow-sm rounded-4 bg-white h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-slate-800">Thống Kê Cư Trú</h5>
+                            <p class="text-muted text-xs mb-0">Tỉ lệ Thường trú vs Tạm trú</p>
+                        </div>
+                        <div class="chart-icon bg-info-soft text-info">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-4 pt-2 d-flex flex-column align-items-center justify-content-center">
+                        <div style="position:relative;height:190px;width:100%;">
+                            <canvas id="cuTruChart"></canvas>
+                        </div>
+                        <div class="w-100 mt-3 border-top pt-3">
+                            <div class="row g-2 text-center">
+                                <div class="col-6 border-end">
+                                    <div class="d-flex align-items-center justify-content-center mb-1">
+                                        <span class="legend-dot bg-primary me-2"></span>
+                                        <span class="text-xs fw-bold">Thường trú</span>
+                                    </div>
+                                    <div class="text-slate-800 fw-bold fs-6">@ViewBag.ThuongTruCount</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center justify-content-center mb-1">
+                                        <span class="legend-dot bg-teal me-2"></span>
+                                        <span class="text-xs fw-bold">Tạm trú</span>
+                                    </div>
+                                    <div class="text-slate-800 fw-bold fs-6">@ViewBag.TamTruCount</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 2: Cấp Tỉnh (Cũ vs Mới) -->
+            <div class="col-lg-4 col-md-6">
+                <div class="chart-container-card card border-0 shadow-sm rounded-4 bg-white h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-slate-800">Biến Động Cấp Tỉnh</h5>
+                            <p class="text-muted text-xs mb-0">Số lượng tỉnh trước và sau sáp nhập</p>
+                        </div>
+                        <div class="chart-icon bg-warning-soft text-warning">
+                            <i class="fa-solid fa-map"></i>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-4 pt-2">
+                        <div style="position:relative;height:240px;width:100%;">
+                            <canvas id="tinhCompareChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart 3: Cấp Xã (Cũ vs Mới) -->
+            <div class="col-lg-4 col-md-12">
+                <div class="chart-container-card card border-0 shadow-sm rounded-4 bg-white h-100">
+                    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-slate-800">Biến Động Cấp Xã</h5>
+                            <p class="text-muted text-xs mb-0">Số lượng xã trước và sau sáp nhập</p>
+                        </div>
+                        <div class="chart-icon bg-success-soft text-success">
+                            <i class="fa-solid fa-map-pin"></i>
+                        </div>
+                    </div>
+                    <div class="card-body px-4 pb-4 pt-2">
+                        <div style="position:relative;height:240px;width:100%;">
+                            <canvas id="xaCompareChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-</div>
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 2 · DASHBOARD DÂN CƯ
+    ══════════════════════════════════════════════════════════════ -->
+    <div id="tab-dancu" class="tab-content-panel d-none">
+
+        <!-- Mini stat cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
+                    <div class="icon-circle bg-primary-soft text-primary fs-3">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-xs text-uppercase mb-1 fw-bold">Tổng Nhân Khẩu</h6>
+                        <h3 class="fw-extrabold mb-0 text-slate-800">@ViewBag.NguoiDanCount</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
+                    <div class="icon-circle bg-success-soft text-success fs-3">
+                        <i class="fa-solid fa-home"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-xs text-uppercase mb-1 fw-bold">Công Dân Thường Trú</h6>
+                        <h3 class="fw-extrabold mb-0 text-slate-800">@ViewBag.ThuongTruCount</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
+                    <div class="icon-circle bg-warning-soft text-warning fs-3">
+                        <i class="fa-solid fa-map-pin"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-muted text-xs text-uppercase mb-1 fw-bold">Biến Động Địa Chỉ</h6>
+                        <h3 class="fw-extrabold mb-0 text-slate-800">@ViewBag.LichSuDiaChiCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts dân cư -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1 text-slate-800">Cơ Cấu Giới Tính</h5>
+                    <p class="text-muted text-xs mb-3">Tỷ lệ giới tính của nhân khẩu</p>
+                    <div style="position:relative;height:250px;">
+                        <canvas id="gioiTinhChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1 text-slate-800">Dân Số Theo Tỉnh Mới</h5>
+                    <p class="text-muted text-xs mb-3">Phân bổ dân cư theo đơn vị hành chính mới</p>
+                    <div style="position:relative;height:260px;width:100%;">
+                        <canvas id="danSoTinhChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <h5 class="fw-bold mb-1 text-slate-800">Dân Số Các Xã Mới (Top 10 xã)</h5>
+                    <p class="text-muted text-xs mb-3">Các đơn vị cấp xã mới có mật độ dân số đăng ký cao nhất</p>
+                    <div style="position:relative;height:280px;width:100%;">
+                        <canvas id="danSoXaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 3 · DASHBOARD SAU SÁP NHẬP
+    ══════════════════════════════════════════════════════════════ -->
+    <div id="tab-sapnhap" class="tab-content-panel d-none">
+
+        <!-- Ánh xạ + Phân bổ -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1 text-slate-800">Tỉ Lệ Ánh Xạ Xã Cũ</h5>
+                    <p class="text-muted text-xs mb-4">Tỉ lệ đơn vị cũ đã được chuyển dịch sang đơn vị mới</p>
+                    <div style="position:relative;height:180px;width:100%;">
+                        <canvas id="tyLeAnhXaChart"></canvas>
+                        <div class="chart-center-label">
+                            <span class="fs-3 fw-extrabold text-slate-800">@ViewBag.TyleAnhXa%</span>
+                            <span class="text-muted" style="font-size:0.65rem;">Đã ánh xạ</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-around mt-4 border-top pt-3">
+                        <div class="text-center">
+                            <span class="text-xs text-muted">Đã chuyển</span>
+                            <h6 class="fw-bold mb-0 text-success">@ViewBag.MappedXaCuCount xã</h6>
+                        </div>
+                        <div class="text-center">
+                            <span class="text-xs text-muted">Chờ chuyển</span>
+                            <h6 class="fw-bold mb-0 text-warning">@ViewBag.UnmappedXaCuCount xã</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <h5 class="fw-bold mb-1 text-slate-800">Số Xã Mới Theo Từng Tỉnh Mới</h5>
+                    <p class="text-muted text-xs mb-3">Biểu đồ thể hiện quy mô địa giới của các tỉnh/thành mới</p>
+                    <div style="position:relative;height:220px;width:100%;">
+                        <canvas id="phanBoXaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng tra cứu ánh xạ -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-3 gap-2">
+                <div class="section-icon-box bg-primary-soft text-primary me-1">
+                    <i class="fa-solid fa-table-list"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-slate-800">Bảng Tra Cứu Ánh Xạ Địa Giới</h5>
+                    <p class="text-muted text-xs mb-0">Lọc và đối chiếu đơn vị hành chính Cũ → Mới</p>
+                </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="mapping-filter-bar p-3 rounded-3 mb-3">
+                <div class="row g-2 align-items-end">
+                    <!-- Tỉnh Cũ -->
+                    <div class="col-lg col-md-4 col-sm-6">
+                        <label class="filter-label">Tỉnh Cũ</label>
+                        <select id="flTinhCu" class="form-select form-select-sm filter-select" onchange="onTinhCuChange()">
+                            <option value="">Tất cả</option>
+                            @if (ViewBag.AnhXaList != null)
+                            {
+                                var tinhCuList = ((IEnumerable<dynamic>)ViewBag.AnhXaList)
+                                    .Select(x => (string)x.TinhCu).Distinct().OrderBy(x => x);
+                                foreach (var t in tinhCuList)
+                                {
+                                    <option value="@t">@t</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <!-- Huyện Cũ -->
+                    <div class="col-lg col-md-4 col-sm-6">
+                        <label class="filter-label">Huyện Cũ</label>
+                        <select id="flHuyenCu" class="form-select form-select-sm filter-select" onchange="applyMappingFilter()">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <!-- Xã Cũ -->
+                    <div class="col-lg col-md-4 col-sm-6">
+                        <label class="filter-label">Xã Cũ</label>
+                        <select id="flXaCu" class="form-select form-select-sm filter-select" onchange="applyMappingFilter()">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <!-- Tỉnh Mới -->
+                    <div class="col-lg col-md-4 col-sm-6">
+                        <label class="filter-label">Tỉnh Mới</label>
+                        <select id="flTinhMoi" class="form-select form-select-sm filter-select" onchange="onTinhMoiChange()">
+                            <option value="">Tất cả</option>
+                            @if (ViewBag.AnhXaList != null)
+                            {
+                                var tinhMoiList = ((IEnumerable<dynamic>)ViewBag.AnhXaList)
+                                    .Select(x => (string)x.TinhMoi).Distinct().OrderBy(x => x);
+                                foreach (var t in tinhMoiList)
+                                {
+                                    <option value="@t">@t</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <!-- Xã Mới -->
+                    <div class="col-lg col-md-4 col-sm-6">
+                        <label class="filter-label">Xã Mới</label>
+                        <select id="flXaMoi" class="form-select form-select-sm filter-select" onchange="applyMappingFilter()">
+                            <option value="">Tất cả</option>
+                        </select>
+                    </div>
+                    <!-- Text search + Reset -->
+                    <div class="col-lg-auto col-md-4 col-sm-12 d-flex gap-2">
+                        <div class="search-box flex-grow-1">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="mappingSearch" oninput="applyMappingFilter()"
+                                   class="form-control form-control-sm" placeholder="Tìm nhanh…" style="min-width:130px;" />
+                        </div>
+                        <button class="btn btn-sm btn-reset" onclick="resetMappingFilter()" title="Xoá bộ lọc">
+                            <i class="fa-solid fa-rotate-left me-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+                <!-- Kết quả đếm -->
+                <div class="mt-2 text-xs text-muted">
+                    Hiển thị <strong id="mappingCount">0</strong> / <strong id="mappingTotal">0</strong> bản ghi
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive rounded-3 border">
+                <table id="mappingTable" class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-muted text-xs text-uppercase">Tỉnh Cũ</th>
+                            <th class="text-muted text-xs text-uppercase">Huyện Cũ</th>
+                            <th class="text-muted text-xs text-uppercase">Xã Cũ</th>
+                            <th class="text-center text-primary"><i class="fa-solid fa-right-long"></i></th>
+                            <th class="text-muted text-xs text-uppercase">Tỉnh Mới</th>
+                            <th class="text-muted text-xs text-uppercase">Xã Mới</th>
+                            <th class="text-muted text-xs text-uppercase">Số QĐ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.AnhXaList != null)
+                        {
+                            foreach (var item in ViewBag.AnhXaList)
+                            {
+                                <tr data-tinh-cu="@item.TinhCu"
+                                    data-huyen-cu="@item.HuyenCu"
+                                    data-xa-cu="@item.XaCu"
+                                    data-tinh-moi="@item.TinhMoi"
+                                    data-xa-moi="@item.XaMoi">
+                                    <td class="fw-semibold text-slate-800">@item.TinhCu</td>
+                                    <td>@item.HuyenCu</td>
+                                    <td><span class="badge bg-warning-soft text-warning fw-semibold">@item.XaCu</span></td>
+                                    <td class="text-center text-primary"><i class="fa-solid fa-arrow-right-arrow-left"></i></td>
+                                    <td class="fw-semibold text-slate-800">@item.TinhMoi</td>
+                                    <td><span class="badge bg-success-soft text-success fw-semibold">@item.XaMoi</span></td>
+                                    <td class="text-muted text-xs">@item.SoNghiDinh</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="7" class="text-center text-muted py-3">Không có dữ liệu ánh xạ.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Điều khiển phân trang -->
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                <div class="text-xs text-muted">
+                    Trang <strong id="pgCurrent">1</strong> / <strong id="pgTotal">1</strong>
+                </div>
+                <div class="d-flex gap-2">
+                    <button id="pgPrev" class="btn btn-sm btn-outline-secondary px-3" onclick="pgPrev()" disabled>
+                        <i class="fa-solid fa-chevron-left me-1"></i>Trước
+                    </button>
+                    <button id="pgNext" class="btn btn-sm btn-outline-secondary px-3" onclick="pgNext()" disabled>
+                        Sau<i class="fa-solid fa-chevron-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bảng sự kiện -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+            <h5 class="fw-bold mb-1 text-slate-800">Lịch Sử Sự Kiện & Quyết Định Pháp Lý</h5>
+            <p class="text-muted text-xs mb-3">Các nghị quyết, quyết định điều chỉnh địa giới hành chính</p>
+            <div class="table-responsive rounded-3 border">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-muted text-xs text-uppercase">Số NQ/QĐ</th>
+                            <th class="text-muted text-xs text-uppercase">Tên Sự Kiện</th>
+                            <th class="text-muted text-xs text-uppercase">Cơ quan ban hành</th>
+                            <th class="text-muted text-xs text-uppercase">Ngày ban hành</th>
+                            <th class="text-muted text-xs text-uppercase">Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.SuKienList != null)
+                        {
+                            foreach (var item in ViewBag.SuKienList)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-primary">@item.SoNghiDinh</td>
+                                    <td>
+                                        <div class="fw-semibold text-slate-800">@item.TenSK</div>
+                                        <small class="text-muted">@item.CanCuPhapLy</small>
+                                    </td>
+                                    <td>@item.CoQuanBanHanh</td>
+                                    <td>@(item.NgayBanHanh != null ? ((DateTime)item.NgayBanHanh).ToString("dd/MM/yyyy") : "-")</td>
+                                    <td>
+                                        @if (item.TrangThai == "Hiệu lực" || item.TrangThai == "Hoàn thành")
+                                        {
+                                            <span class="badge bg-success-soft text-success">@item.TrangThai</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning-soft text-warning">@item.TrangThai</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-3">Không có sự kiện.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div><!-- end .dashboard-wrapper -->
+
+<!-- ── STYLES ──────────────────────────────────────────────────── -->
+<style>
+    .dashboard-wrapper { font-family: 'Plus Jakarta Sans', sans-serif; color: #334155; }
+
+    /* Tabs */
+    .tab-btn { border: none !important; background: transparent !important; color: #64748b !important; font-weight: 600; font-size: .875rem; padding: 10px 18px !important; border-radius: 10px !important; transition: all .25s ease !important; }
+    .tab-btn:hover { background: #f1f5f9 !important; color: #1e293b !important; }
+    .tab-btn.active { background: #4f46e5 !important; color: #fff !important; box-shadow: 0 4px 12px rgba(79,70,229,.15); }
+
+    /* Soft colours */
+    .bg-primary-soft  { background-color: rgba(79,70,229,.08)  !important; }
+    .bg-success-soft  { background-color: rgba(16,185,129,.08) !important; }
+    .bg-info-soft     { background-color: rgba(14,165,233,.08) !important; }
+    .bg-warning-soft  { background-color: rgba(245,158,11,.08) !important; }
+    .bg-danger-soft   { background-color: rgba(239,68,68,.08)  !important; }
+    .bg-purple-soft   { background-color: rgba(168,85,247,.08) !important; }
+    .bg-teal-soft     { background-color: rgba(20,184,166,.08) !important; }
+
+    /* Text colours */
+    .text-slate-800 { color: #1e293b !important; }
+    .text-purple    { color: #a855f7 !important; }
+    .text-teal      { color: #0f766e !important; }
+    .bg-teal        { background-color: #14b8a6 !important; }
+
+    /* Sizes */
+    .text-xs   { font-size: .75rem  !important; }
+    .text-sm   { font-size: .875rem !important; }
+    .fw-extrabold { font-weight: 800 !important; }
+    .tracking-wider { letter-spacing: .05em; }
+
+    /* KPI borders */
+    .border-start-primary { border-left: 4px solid #4f46e5 !important; }
+    .border-start-success { border-left: 4px solid #10b981 !important; }
+    .border-start-purple  { border-left: 4px solid #a855f7 !important; }
+    .border-start-teal    { border-left: 4px solid #14b8a6 !important; }
+
+    .db-time-card  { border: 1px solid #e2e8f0 !important; }
+    .kpi-card      { transition: all .3s cubic-bezier(.4,0,.2,1); border: 1px solid #e2e8f0 !important; }
+    .kpi-card:hover { transform: translateY(-5px); box-shadow: 0 15px 20px -5px rgba(0,0,0,.05) !important; }
+    .kpi-badge     { font-size: .7rem; font-weight: 700; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+    .kpi-icon-wrapper { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .kpi-value     { font-size: 2.25rem; letter-spacing: -.03em; color: #1e293b; }
+
+    .unit-compare-card, .chart-container-card { border: 1px solid #e2e8f0 !important; }
+    .section-icon-box { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+
+    /* Mini cards */
+    .metric-mini-card  { background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px 14px; border-radius: 14px; transition: all .25s ease; }
+    .metric-mini-card:hover { transform: translateY(-3px); background: #fff; box-shadow: 0 10px 15px -8px rgba(0,0,0,.08); }
+    .metric-value      { font-size: 1.6rem; font-weight: 800; color: #0f172a; line-height: 1.2; margin-top: 4px; }
+    .border-left-primary { border-left: 4px solid #4f46e5 !important; }
+    .border-left-info    { border-left: 4px solid #0ea5e9 !important; }
+    .border-left-danger  { border-left: 4px solid #ef4444 !important; }
+    .border-left-success { border-left: 4px solid #10b981 !important; }
+    .border-left-teal    { border-left: 4px solid #14b8a6 !important; }
+
+    .chart-icon   { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .legend-dot   { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+    .icon-circle  { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* Donut centre */
+    .chart-center-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+
+    /* Tables */
+    .table th { font-weight: 700; font-size: .75rem; letter-spacing: .05em; }
+    .table td { padding: 12px 16px; font-size: .85rem; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box .form-control { padding-left: 32px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: .8rem; }
+    .search-box .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: .85rem; }
+
+    /* Mapping filter bar */
+    .mapping-filter-bar { background: #f8fafc; border: 1px solid #e2e8f0; }
+    .filter-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b; margin-bottom: 4px; display: block; }
+    .filter-select { font-size: .8rem; border-color: #cbd5e1; border-radius: 8px; color: #334155; }
+    .filter-select:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+    .btn-reset { background: #fff; border: 1px solid #e2e8f0; color: #64748b; border-radius: 8px; font-size: .8rem; font-weight: 600; white-space: nowrap; transition: all .2s ease; }
+    .btn-reset:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+</style>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ── Helpers ────────────────────────────────────────────────
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.add('d-none'));
+        document.getElementById(tabId).classList.remove('d-none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        window.dispatchEvent(new Event('resize'));   // re-render Chart.js
+    }
+
+    // ── Mapping table: cascading dropdowns + text filter + pagination ─────
+    const PAGE_SIZE = 100;
+    let _currentPage = 1;
+    let _filteredRows = [];
+
+    function getAllRows() {
+        return Array.from(document.querySelectorAll('#mappingTable tbody tr[data-tinh-cu]'));
+    }
+
+    function populateSelect(selectEl, values) {
+        const current = selectEl.value;
+        while (selectEl.options.length > 1) selectEl.remove(1);
+        [...new Set(values)].sort().forEach(v => {
+            const o = new Option(v, v);
+            selectEl.appendChild(o);
+        });
+        if ([...selectEl.options].some(o => o.value === current)) selectEl.value = current;
+    }
+
+    function initAllDropdowns() {
+        const rows = getAllRows();
+        // Pre-populate Huyện Cũ & Xã Cũ & Xã Mới with ALL values
+        populateSelect(document.getElementById('flHuyenCu'), rows.map(r => r.dataset.huyenCu));
+        populateSelect(document.getElementById('flXaCu'),    rows.map(r => r.dataset.xaCu));
+        populateSelect(document.getElementById('flXaMoi'),   rows.map(r => r.dataset.xaMoi));
+    }
+
+    function onTinhCuChange() {
+        const tinh = document.getElementById('flTinhCu').value;
+        const rows = getAllRows();
+        // Re-populate Huyện Cũ
+        const huyens = rows
+            .filter(r => !tinh || r.dataset.tinhCu === tinh)
+            .map(r => r.dataset.huyenCu);
+        populateSelect(document.getElementById('flHuyenCu'), huyens);
+        // Re-populate Xã Cũ based on new huyen options
+        const xasCu = rows
+            .filter(r => !tinh || r.dataset.tinhCu === tinh)
+            .map(r => r.dataset.xaCu);
+        populateSelect(document.getElementById('flXaCu'), xasCu);
+        _currentPage = 1;
+        applyMappingFilter();
+    }
+
+    function onTinhMoiChange() {
+        const tinh = document.getElementById('flTinhMoi').value;
+        const rows = getAllRows();
+        const xas = rows
+            .filter(r => !tinh || r.dataset.tinhMoi === tinh)
+            .map(r => r.dataset.xaMoi);
+        populateSelect(document.getElementById('flXaMoi'), xas);
+        _currentPage = 1;
+        applyMappingFilter();
+    }
+
+    // Huyện Cũ change → re-populate Xã Cũ
+    document.getElementById('flHuyenCu')?.addEventListener('change', function () {
+        const tinh  = document.getElementById('flTinhCu').value;
+        const huyen = this.value;
+        const rows  = getAllRows();
+        const xas   = rows
+            .filter(r => (!tinh || r.dataset.tinhCu === tinh) && (!huyen || r.dataset.huyenCu === huyen))
+            .map(r => r.dataset.xaCu);
+        populateSelect(document.getElementById('flXaCu'), xas);
+        _currentPage = 1;
+        applyMappingFilter();
+    });
+
+    function applyMappingFilter() {
+        const tinhCu  = document.getElementById('flTinhCu').value;
+        const huyenCu = document.getElementById('flHuyenCu').value;
+        const xaCu    = document.getElementById('flXaCu').value;
+        const tinhMoi = document.getElementById('flTinhMoi').value;
+        const xaMoi   = document.getElementById('flXaMoi').value;
+        const text    = (document.getElementById('mappingSearch').value || '').toUpperCase();
+
+        const rows = getAllRows();
+        _filteredRows = rows.filter(row =>
+            (!tinhCu  || row.dataset.tinhCu  === tinhCu)  &&
+            (!huyenCu || row.dataset.huyenCu === huyenCu) &&
+            (!xaCu    || row.dataset.xaCu    === xaCu)    &&
+            (!tinhMoi || row.dataset.tinhMoi === tinhMoi) &&
+            (!xaMoi   || row.dataset.xaMoi   === xaMoi)   &&
+            (!text    || row.innerText.toUpperCase().includes(text))
+        );
+
+        renderPage();
+    }
+
+    function renderPage() {
+        const rows      = getAllRows();
+        const start     = (_currentPage - 1) * PAGE_SIZE;
+        const end       = start + PAGE_SIZE;
+        const pageRows  = _filteredRows.slice(start, end);
+        const pageRowSet = new Set(pageRows);
+
+        // Hide/show rows
+        rows.forEach(r => r.style.display = pageRowSet.has(r) ? '' : 'none');
+
+        // Update counter
+        const showing = Math.min(end, _filteredRows.length);
+        document.getElementById('mappingCount').textContent =
+            _filteredRows.length === 0 ? '0' : `${start + 1}–${showing}`;
+        document.getElementById('mappingTotal').textContent = _filteredRows.length;
+
+        // Update pagination controls
+        const totalPages = Math.max(1, Math.ceil(_filteredRows.length / PAGE_SIZE));
+        const pgCurrentEl = document.getElementById('pgCurrent');
+        if (pgCurrentEl) pgCurrentEl.textContent = _currentPage;
+        const pgTotalEl = document.getElementById('pgTotal');
+        if (pgTotalEl) pgTotalEl.textContent = totalPages;
+        const pgPrevEl = document.getElementById('pgPrev');
+        if (pgPrevEl) pgPrevEl.disabled = _currentPage <= 1;
+        const pgNextEl = document.getElementById('pgNext');
+        if (pgNextEl) pgNextEl.disabled = _currentPage >= totalPages;
+    }
+
+    function pgPrev() { if (_currentPage > 1) { _currentPage--; renderPage(); } }
+    function pgNext() {
+        const totalPages = Math.ceil(_filteredRows.length / PAGE_SIZE);
+        if (_currentPage < totalPages) { _currentPage++; renderPage(); }
+    }
+
+    function filterMappingTable() { _currentPage = 1; applyMappingFilter(); }
+
+    function resetMappingFilter() {
+        ['flTinhCu','flTinhMoi'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        document.getElementById('mappingSearch').value = '';
+        _currentPage = 1;
+        // Re-populate cascading dropdowns with all values
+        initAllDropdowns();
+        applyMappingFilter();
+    }
+
+    // ── Data (serialized server-side → no encoding issues) ────
+    const danSoTinhData  = @Html.Raw(danSoTinhJson);
+    const danSoXaData    = @Html.Raw(danSoXaJson);
+    const gioiTinhData   = @Html.Raw(gioiTinhJson);
+    const phanBoXaData   = @Html.Raw(phanBoXaJson);
+
+    // ── Shared chart options ───────────────────────────────────
+    const tooltipOpts = { backgroundColor: '#1e293b', padding: 10, cornerRadius: 8 };
+    const fontFamily  = "'Plus Jakarta Sans', sans-serif";
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // Date display
+        document.getElementById('current-date').innerText =
+            new Date().toLocaleDateString('vi-VN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+        // Init mapping table: populate dropdowns + first page
+        const allMappingRows = getAllRows();
+        _filteredRows = allMappingRows;                           // all rows visible initially
+        initAllDropdowns();                                       // fill Huyện/Xã dropdowns
+        renderPage();                                             // show page 1
+        const totalEl = document.getElementById('mappingTotal');
+        if (totalEl) totalEl.textContent = allMappingRows.length;
+
+        // ── TAB 1 Charts ────────────────────────────────────────
+
+        // 1. Donut – cư trú
+        new Chart(document.getElementById('cuTruChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Thường trú', 'Tạm trú'],
+                datasets: [{ data: [@ViewBag.ThuongTruCount, @ViewBag.TamTruCount],
+                    backgroundColor: ['#4f46e5','#14b8a6'], borderWidth: 2, borderColor:'#fff', hoverOffset: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins: { legend:{ display:false }, tooltip: tooltipOpts },
+                cutout:'72%' }
+        });
+
+        // 2a. Bar – biến động cấp Tỉnh
+        new Chart(document.getElementById('tinhCompareChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Trước sáp nhập', 'Sau sáp nhập'],
+                datasets: [{ label:'Số lượng Tỉnh',
+                    data: [@ViewBag.TinhCuCount, @ViewBag.TinhMoiCount],
+                    backgroundColor: ['rgba(245,158,11,.85)','rgba(16,185,129,.85)'],
+                    borderColor: ['#d97706','#059669'], borderWidth:1, borderRadius:6, barThickness:45 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false }, tooltip: tooltipOpts },
+                scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#f1f5f9' }, ticks:{ precision:0 }, beginAtZero:true } } }
+        });
+
+        // 2b. Bar – biến động cấp Xã
+        new Chart(document.getElementById('xaCompareChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Trước sáp nhập', 'Sau sáp nhập'],
+                datasets: [{ label:'Số lượng Xã',
+                    data: [@ViewBag.XaCuCount, @ViewBag.XaMoiCount],
+                    backgroundColor: ['rgba(245,158,11,.85)','rgba(16,185,129,.85)'],
+                    borderColor: ['#d97706','#059669'], borderWidth:1, borderRadius:6, barThickness:45 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false }, tooltip: tooltipOpts },
+                scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#f1f5f9' }, ticks:{ precision:0 }, beginAtZero:true } } }
+        });
+
+        // ── TAB 2 Charts ────────────────────────────────────────
+
+        // 3. Pie – giới tính
+        if (gioiTinhData.length) {
+            new Chart(document.getElementById('gioiTinhChart'), {
+                type: 'pie',
+                data: { labels: gioiTinhData.map(x=>x.name),
+                    datasets:[{ data: gioiTinhData.map(x=>x.value),
+                        backgroundColor:['#3b82f6','#ec4899','#94a3b8'], borderWidth:2 }] },
+                options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
+            });
+        }
+
+        // 4. Horizontal Bar – dân số theo Tỉnh mới
+        if (danSoTinhData.length) {
+            new Chart(document.getElementById('danSoTinhChart'), {
+                type: 'bar',
+                data: { labels: danSoTinhData.map(x=>x.name),
+                    datasets:[{ label:'Số dân', data: danSoTinhData.map(x=>x.value),
+                        backgroundColor:'#4f46e5', borderRadius:6 }] },
+                options: { indexAxis:'y', responsive:true, maintainAspectRatio:false,
+                    plugins:{ legend:{ display:false } },
+                    scales:{ x:{ grid:{ color:'#f1f5f9' }, ticks:{ precision:0 } }, y:{ grid:{ display:false } } } }
+            });
+        }
+
+        // 5. Bar – dân số theo Xã mới (Top 10)
+        if (danSoXaData.length) {
+            new Chart(document.getElementById('danSoXaChart'), {
+                type: 'bar',
+                data: { labels: danSoXaData.map(x=>x.name),
+                    datasets:[{ label:'Số dân', data: danSoXaData.map(x=>x.value),
+                        backgroundColor:'#0ea5e9', borderRadius:6 }] },
+                options: { responsive:true, maintainAspectRatio:false,
+                    plugins:{ legend:{ display:false } },
+                    scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#f1f5f9' }, ticks:{ precision:0 } } } }
+            });
+        }
+
+        // ── TAB 3 Charts ────────────────────────────────────────
+
+        // 6. Donut – tỷ lệ ánh xạ
+        new Chart(document.getElementById('tyLeAnhXaChart'), {
+            type: 'doughnut',
+            data: { labels:['Đã ánh xạ','Chưa ánh xạ'],
+                datasets:[{ data:[@ViewBag.MappedXaCuCount, @ViewBag.UnmappedXaCuCount],
+                    backgroundColor:['#10b981','#e2e8f0'], borderWidth:0 }] },
+            options: { responsive:true, maintainAspectRatio:false,
+                plugins:{ legend:{ display:false }, tooltip:{ enabled:true } }, cutout:'80%' }
+        });
+
+        // 7. Bar – phân bổ xã mới theo tỉnh mới
+        if (phanBoXaData.length) {
+            new Chart(document.getElementById('phanBoXaChart'), {
+                type: 'bar',
+                data: { labels: phanBoXaData.map(x=>x.name),
+                    datasets:[{ label:'Số xã mới', data: phanBoXaData.map(x=>x.value),
+                        backgroundColor:'#a855f7', borderRadius:6 }] },
+                options: { responsive:true, maintainAspectRatio:false,
+                    plugins:{ legend:{ display:false } },
+                    scales:{ x:{ grid:{ display:false } }, y:{ grid:{ color:'#f1f5f9' }, ticks:{ precision:0 } } } }
+            });
+        }
+    });
+</script>

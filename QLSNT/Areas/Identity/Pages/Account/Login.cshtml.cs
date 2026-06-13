@@ -118,7 +118,7 @@ namespace QLSNT.Areas.Identity.Pages.Account
                     // Admin
                     if (await _userManager.IsInRoleAsync(user, "Admin"))
                     {
-                        return Redirect("/Admin/NguoiDan");
+                        return Redirect("/Admin/Home");
                     }
 
                     // User

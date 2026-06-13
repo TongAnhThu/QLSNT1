@@ -42,6 +42,7 @@ namespace QLSNT.Controllers
         }
 
         // Index
+        // Index
         public async Task<IActionResult> Index(string? search)
         {
             List<LichSuSapNhap> list;
@@ -56,6 +57,13 @@ namespace QLSNT.Controllers
                 // tìm kiếm, vẫn include navigation để view hiển thị đúng
                 list = await _repo.SearchAsync(search, includeTinhs: true, includeXas: true);
             }
+
+            // 👉 Sắp xếp tự nhiên (Natural Sort): Trích xuất ký tự số trong MaLSSN rồi parse thành số nguyên để sắp xếp
+            list = list.OrderBy(x => {
+                if (string.IsNullOrEmpty(x.MaLSSN)) return 0;
+                var digits = new string(x.MaLSSN.Where(char.IsDigit).ToArray());
+                return int.TryParse(digits, out int val) ? val : 0;
+            }).ToList();
 
             ViewBag.Search = search;
             return View(list);
